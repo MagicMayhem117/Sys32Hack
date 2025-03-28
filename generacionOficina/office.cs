@@ -118,11 +118,13 @@ public class MotionSensor : Sensor
 public class Room
 {
     public string Name { get; }
+    public bool isWork { get; }
     public List<Sensor> Sensors { get; } = new List<Sensor>();
 
-    public Room(string name)
+    public Room(string name, bool iswork)
     {
         Name = name;
+        isWork = iswork;
     }
 
     public void AddSensor(Sensor sensor)

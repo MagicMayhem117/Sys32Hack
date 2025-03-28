@@ -10,9 +10,9 @@ public class Program
         Office miOficina = new Office("Corporativo XYZ");
 
         // 2. Crear Habitaciones
-        Room recepcion = new Room("Recepción");
-        Room salaJuntas = new Room("Sala de Juntas");
-        Room areaComun = new Room("Área Común");
+        Room recepcion = new Room("Recepción", false);
+        Room salaJuntas = new Room("Sala de Juntas", true);
+        Room areaComun = new Room("Área Común", false);
 
         // 3. Crear y Añadir Sensores a las Habitaciones
         recepcion.AddSensor(new TemperatureSensor("TEMP-REC-01", "Recepción"));
