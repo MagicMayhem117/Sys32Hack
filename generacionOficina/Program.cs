@@ -1,72 +1,65 @@
 ﻿using System;
-using System.Text.Json;
-using System.IO;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Threading;
+using System.Linq; // Needed for .Any()
 
-namespace generacionOficina
+public class Program
 {
-    class Program
+    public static void Main(string[] args)
     {
-        static async Task Main(string[] args)
+        // 1. Crear la Oficina
+        Office miOficina = new Office("Corporativo XYZ");
+
+        // 2. Crear Habitaciones
+        Room recepcion = new Room("Recepción");
+        Room salaJuntas = new Room("Sala de Juntas");
+        Room areaComun = new Room("Área Común");
+
+        // 3. Crear y Añadir Sensores a las Habitaciones
+        recepcion.AddSensor(new TemperatureSensor("TEMP-REC-01", "Recepción"));
+        recepcion.AddSensor(new MotionSensor("MOT-REC-01", "Recepción"));
+
+        salaJuntas.AddSensor(new TemperatureSensor("TEMP-SJ-01", "Sala de Juntas", 22.5));
+        salaJuntas.AddSensor(new MotionSensor("MOT-SJ-01", "Sala de Juntas"));
+        // Podrías añadir un sensor de ocupación, luz, etc.
+
+        areaComun.AddSensor(new TemperatureSensor("TEMP-AC-01", "Área Común", 20.0));
+        areaComun.AddSensor(new MotionSensor("MOT-AC-01", "Área Común"));
+        areaComun.AddSensor(new MotionSensor("MOT-AC-02", "Área Común - Cafetería"));
+
+
+        // 4. Añadir Habitaciones a la Oficina
+        miOficina.AddRoom(recepcion);
+        miOficina.AddRoom(salaJuntas);
+        miOficina.AddRoom(areaComun);
+
+
+        // 5. Bucle de Simulación e Interacción
+        Console.WriteLine("Iniciando Simulación de Oficina...");
+        Thread.Sleep(1000);
+
+        bool exit = false;
+        while (!exit)
         {
-            string ruta = "sensores.json";
-
-            if (File.Exists(ruta))
+            if (Console.KeyAvailable) // Check if a key was pressed
             {
-                try
+                var key = Console.ReadKey(intercept: true).Key; // Read key without showing it
+                if (key == ConsoleKey.Q)
                 {
-                    string json = await File.ReadAllTextAsync(ruta);
-                    List<Sensor> sensores = JsonSerializer.Deserialize<List<Sensor>>(json);
-
-                    if (sensores != null)
-                    {
-                        ProcesarSensores(sensores);
-                    }
-                    else
-                    {
-                        Console.WriteLine("El archivo JSON está vacío o no es una lista válida de sensores.");
-                    }
-                }
-                catch (JsonException jsonEx)
-                {
-                    Console.WriteLine($"Error al procesar el archivo JSON: {jsonEx.Message}");
-                }
-                catch (IOException ioEx)
-                {
-                    Console.WriteLine($"Error al leer el archivo: {ioEx.Message}");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Ocurrió un error inesperado: {ex.Message}");
+                    exit = true;
                 }
             }
-            else
-            {
-                Console.WriteLine($"El archivo no existe en la ruta: {Path.GetFullPath(ruta)}");
-            }
+
+            // Actualizar el estado de todos los sensores
+            miOficina.SimulateUpdateAll();
+
+            // Mostrar el estado actual en la consola
+            miOficina.DisplayFullStatus();
+
+            // Esperar un poco antes de la siguiente actualización
+            if (!exit)
+                Thread.Sleep(2000); // Espera 2 segundos
         }
 
-        static void ProcesarSensores(List<Sensor> sensores)
-        {
-            foreach (var sensor in sensores)
-            {
-                Console.WriteLine("Ubicacion: " + sensor.Location);
-                Console.WriteLine("ID: " + sensor.Id);
-                Console.WriteLine("Capacidad: " + sensor.Capacity);
-                Console.WriteLine("Actualizacion: " + sensor.UpdateSensor + " segundos");
-                Console.WriteLine("Valores: " + (sensor.Values != null ? string.Join(", ", sensor.Values) : "N/A"));
-                Console.WriteLine();
-            }
-        }
-    }
-
-    public class Sensor
-    {
-        public string Location { get; set; }
-        public int Id { get; set; }
-        public int Capacity { get; set; }
-        public int UpdateSensor { get; set; }
-        public List<int> Values { get; set; }
+        Console.WriteLine("\nSimulación terminada.");
     }
 }
