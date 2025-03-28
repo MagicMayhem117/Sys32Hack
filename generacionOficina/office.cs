@@ -1,23 +1,32 @@
-﻿using generacionOficina;
+﻿using System.Collections.Generic; 
+using System.Text.Json.Serialization; 
 
-public class sensor
+
+public class Sensor
 {
-        public string location { get; set; }
-        public string id { get; set; }
-        public int capacity { get; set; }
-        public int updateSensor { get; set; }
-        public int values { get; set; }
+    [JsonPropertyName("location")]
+    public string Location { get; set; }
+
+    [JsonPropertyName("id")]
+    public string Id { get; set; }
+
+    [JsonPropertyName("capacity")]
+    public int Capacity { get; set; }
+
+    [JsonPropertyName("updateSensor")]
+    public int UpdateSensor { get; set; }
+
+    [JsonPropertyName("values")]
+    public List<double> Values { get; set; }
+
+   
+    public Sensor()
+    {
         
-        
-        public sensor()
-        {
-            this.location = "";
-            this.id = "";
-            this.capacity = 0;
-            this.updateSensor = 0;
-            this.values = 0;
-        }
+        this.Location = "";
+        this.Id = "";
+        this.Capacity = 0;
+        this.UpdateSensor = 0;
+        this.Values = new List<double>();
+    }
 }
-
-
-
