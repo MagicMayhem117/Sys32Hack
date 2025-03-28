@@ -1,0 +1,30 @@
+[
+  {
+    "location": "Sala Principal",
+    "id": "sensor_001",
+    "capacity": 100,
+    "updateSensor": 60,
+    "values": 75
+  },
+  {
+    "location": "Oficina 1",
+    "id": "sensor_002",
+    "capacity": 80,
+    "updateSensor": 30,
+    "values": 50
+  },
+  {
+    "location": "Almacén",
+    "id": "sensor_003",
+    "capacity": 120,
+    "updateSensor": 45,
+    "values": 90
+  },
+  {
+    "location": "Pasillo",
+    "id": "sensor_004",
+    "capacity": 90,
+    "updateSensor": 15,
+    "values": 60
+  }
+]
