@@ -1,0 +1,15 @@
+C:\Users\diego\Desktop\Sys32\generacionOficina\obj\Debug\net9.0\generacionOficina.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\diego\Desktop\Sys32\generacionOficina\obj\Debug\net9.0\generacionOficina.AssemblyInfoInputs.cache
+C:\Users\diego\Desktop\Sys32\generacionOficina\obj\Debug\net9.0\generacionOficina.AssemblyInfo.cs
+C:\Users\diego\Desktop\Sys32\generacionOficina\obj\Debug\net9.0\generacionOficina.csproj.CoreCompileInputs.cache
+C:\Users\diego\Desktop\Sys32\generacionOficina\obj\Debug\net9.0\generacionOficina.sourcelink.json
+C:\Users\diego\Desktop\Sys32\generacionOficina\bin\Debug\net9.0\generacionOficina.exe
+C:\Users\diego\Desktop\Sys32\generacionOficina\bin\Debug\net9.0\generacionOficina.deps.json
+C:\Users\diego\Desktop\Sys32\generacionOficina\bin\Debug\net9.0\generacionOficina.runtimeconfig.json
+C:\Users\diego\Desktop\Sys32\generacionOficina\bin\Debug\net9.0\generacionOficina.dll
+C:\Users\diego\Desktop\Sys32\generacionOficina\bin\Debug\net9.0\generacionOficina.pdb
+C:\Users\diego\Desktop\Sys32\generacionOficina\obj\Debug\net9.0\generacionOficina.dll
+C:\Users\diego\Desktop\Sys32\generacionOficina\obj\Debug\net9.0\refint\generacionOficina.dll
+C:\Users\diego\Desktop\Sys32\generacionOficina\obj\Debug\net9.0\generacionOficina.pdb
+C:\Users\diego\Desktop\Sys32\generacionOficina\obj\Debug\net9.0\generacionOficina.genruntimeconfig.cache
+C:\Users\diego\Desktop\Sys32\generacionOficina\obj\Debug\net9.0\ref\generacionOficina.dll
