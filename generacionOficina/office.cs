@@ -19,6 +19,7 @@ public abstract class Sensor
     }
 }
 
+
 // --- Specific Sensor Types ---
 public class TemperatureSensor : Sensor
 {
@@ -41,6 +42,47 @@ public class TemperatureSensor : Sensor
         CurrentTemperature = Math.Clamp(CurrentTemperature, 15.0, 30.0); // Keep within bounds
     }
 }
+public class CardSensor : Sensor
+{ 
+    public override string Type => "Tarjeta";
+    public bool CardDetected { get; private set; }
+    private Random _random = new Random();
+    public CardSensor(string id, string location) : base(id, location) { }
+
+    public override object GetValue() => CardDetected ? "Detectada" : "No Detectada";
+
+    public override void SimulateUpdate()
+    {
+        // Simulate random card detection (e.g., 10% chance each update)
+        if (_random.NextDouble() < 0.1)
+        {
+            CardDetected = true;
+            // Optional: Add logic to automatically turn off after a while
+        }
+        else
+        {
+            // Have a chance to turn off if already on
+            if (CardDetected && _random.NextDouble() < 0.3)
+            {
+                CardDetected = false;
+            }
+        }
+        // If not triggered, it stays in its current state unless turned off above
+    }
+}
+
+public class PrinterSensor : Sensor
+{
+    public override string Type => "Impresora";
+    public bool PrinterDetected { get; private set; }
+    private Random _random = new Random();
+
+    public PrinterSensor(string id, string location) : base(id, location) { }
+
+    public override object GetValue() => PrinterDetected ? "Detectada" : "No Detectada";
+
+}
+
 
 public class MotionSensor : Sensor
 {
