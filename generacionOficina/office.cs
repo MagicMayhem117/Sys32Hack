@@ -264,7 +264,7 @@ public class Office
         {
             room.DisplayStatus();
             Console.WriteLine(); // Add empty line for spacing
-        }
+        }//hoa
         Console.WriteLine("======================================");
         Console.WriteLine("Presiona 'Q' para salir...");
     }

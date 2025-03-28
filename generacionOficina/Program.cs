@@ -61,5 +61,6 @@ public class Program
         }
 
         Console.WriteLine("\nSimulación terminada.");
-    }
+    }//oa x2
+
 }
