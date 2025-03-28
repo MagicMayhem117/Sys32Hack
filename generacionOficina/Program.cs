@@ -15,16 +15,16 @@ public class Program
         Room areaComun = new Room("Área Común", false);
 
         // 3. Crear y Añadir Sensores a las Habitaciones
-        recepcion.AddSensor(new TemperatureSensor("TEMP-REC-01", "Recepción"));
-        recepcion.AddSensor(new MotionSensor("MOT-REC-01", "Recepción"));
+        recepcion.AddSensor(new TemperatureSensor("TEMP-REC-01", recepcion));
+        recepcion.AddSensor(new MotionSensor("MOT-REC-01", recepcion));
 
-        salaJuntas.AddSensor(new TemperatureSensor("TEMP-SJ-01", "Sala de Juntas", 22.5));
-        salaJuntas.AddSensor(new MotionSensor("MOT-SJ-01", "Sala de Juntas"));
+        salaJuntas.AddSensor(new TemperatureSensor("TEMP-SJ-01", salaJuntas, 22.5));
+        salaJuntas.AddSensor(new MotionSensor("MOT-SJ-01", salaJuntas));
         // Podrías añadir un sensor de ocupación, luz, etc.
 
-        areaComun.AddSensor(new TemperatureSensor("TEMP-AC-01", "Área Común", 20.0));
-        areaComun.AddSensor(new MotionSensor("MOT-AC-01", "Área Común"));
-        areaComun.AddSensor(new MotionSensor("MOT-AC-02", "Área Común - Cafetería"));
+        areaComun.AddSensor(new TemperatureSensor("TEMP-AC-01", areaComun, 20.0));
+        areaComun.AddSensor(new MotionSensor("MOT-AC-01", areaComun));
+        areaComun.AddSensor(new MotionSensor("MOT-AC-02", areaComun));
 
 
         // 4. Añadir Habitaciones a la Oficina

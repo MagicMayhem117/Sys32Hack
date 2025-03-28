@@ -2,12 +2,12 @@
 public abstract class Sensor
 {
     public string Id { get; }
-    public string Location { get; } // E.g., "Sala de Juntas", "Escritorio 5"
+    public Room Location { get; } // E.g., "Sala de Juntas", "Escritorio 5"
     public abstract string Type { get; }
     public abstract object GetValue(); // Object allows different value types
     public abstract void SimulateUpdate(); // Logic to change the value
 
-    protected Sensor(string id, string location)
+    protected Sensor(string id, Room location)
     {
         Id = id;
         Location = location;
@@ -18,13 +18,13 @@ public abstract class Sensor
         return $"[{Type}] ID: {Id} @ {Location} -> Valor: {GetValue()}";
     }
 }
-public abstract class reader
+public abstract class Reader
 {
     public string Id { get; }
-    public string Location { get; } 
+    public Room Location { get; } 
     public abstract object GetValue(); 
     public abstract void SimulateUpdate();
-    protected reader(string id, string location)
+    protected Reader(string id, Room location)
     {
         Id = id;
         Location = location;
@@ -43,29 +43,29 @@ public class TemperatureSensor : Sensor
     private Random _random = new Random();
     public string airCon {  get; private set; }
 
-    public TemperatureSensor(string id, string location, double initialTemp = 21.0) : base(id, location)
+    public TemperatureSensor(string id, Room location, double initialTemp = 21.0) : base(id, location)
     {
         CurrentTemperature = initialTemp;
-        airCon = 0;
+        airCon = "";
     }
 
     public override object GetValue() => $"{CurrentTemperature:F1}°C"; // Format to 1 decimal place
 
-    public override string air()
+    public string air()
     {
         if (CurrentTemperature < 16)
         {
-            airCon = 'calefaccion encendida';
+            airCon = "calefaccion encendida";
             return airCon;
         }
         else if(CurrentTemperature>23)
         {
-            airCon = 'aire acondicionado encendido';
+            airCon = "aire acondicionado encendido";
             return airCon;
         }
         else
         {
-            airCon = 'temperatura estable';
+            airCon = "temperatura estable";
             return airCon;
         }        
     }
@@ -79,16 +79,16 @@ public class TemperatureSensor : Sensor
         air();
     }
 }
-public class Reader : reader
+public class CardReader : Reader
 { 
     public string Type => "Tarjeta";
     public bool CardDetected { get; private set; }
     private Random _random = new Random();
-    public Reader(string id, Room location) : base(id, location) { }
+    public CardReader(string id, Room location) : base(id, location) { }
 
-    public object GetValue() => CardDetected ? "Detectada" : "No Detectada";
+    public override object GetValue() => CardDetected ? "Detectada" : "No Detectada";
 
-    public void SimulateUpdate()
+    public override void SimulateUpdate()
     {
         // Simulate random card detection (e.g., 10% chance each update)
         if (_random.NextDouble() < 0.1)
@@ -115,7 +115,7 @@ public class PrinterSensor : Sensor
     public bool PrinterDetected { get; private set; }
     private Random _random = new Random();
 
-    public PrinterSensor(string id, string location) : base(id, location) { }
+    public PrinterSensor(string id, Room location) : base(id, location) { }
 
     public override object GetValue() => PrinterDetected ? "Detectada" : "No Detectada";
 
@@ -147,7 +147,7 @@ public class MotionSensor : Sensor
     public bool MotionDetected { get; private set; }
     private Random _random = new Random();
 
-    public MotionSensor(string id, string location) : base(id, location) { }
+    public MotionSensor(string id, Room location) : base(id, location) { }
 
     public override object GetValue() => MotionDetected ? "Detectado" : "No Detectado";
 
@@ -177,7 +177,7 @@ public class Room
     public string Name { get; }
     public bool isWork { get; }
     public List<Sensor> Sensors { get; } = new List<Sensor>();
-    public List<Reader> Readers { get; } = new List<Reader>();
+    public List<CardReader> Readers { get; } = new List<CardReader>();
 
     public Room(string name, bool iswork)
     {
@@ -190,9 +190,9 @@ public class Room
         Sensors.Add(sensor);
     }
 
-    public void AddReader(Reader reader)
+    public void AddReader(CardReader Reader)
     {
-        Readers.Add(reader);
+        Readers.Add(Reader);
     }
 
     public void SimulateUpdateSensors()
@@ -213,7 +213,14 @@ public class Room
         }
         foreach (var sensor in Sensors)
         {
-            Console.WriteLine($"  {sensor}");
+            if (sensor is TemperatureSensor tempSensor)
+            {
+                Console.WriteLine($"  {sensor}  {tempSensor.air()}");
+            }
+            else
+            {
+                Console.WriteLine($"  {sensor}");
+            }
         }
     }
 }
