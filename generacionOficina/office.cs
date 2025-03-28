@@ -42,21 +42,22 @@ public class TemperatureSensor : Sensor
         CurrentTemperature = Math.Clamp(CurrentTemperature, 15.0, 30.0); // Keep within bounds
     }
 }
-public class CardSensor : Sensor
+public class Reader
 { 
-    public override string Type => "Tarjeta";
+    public string Type => "Tarjeta";
     public bool CardDetected { get; private set; }
     private Random _random = new Random();
-    public CardSensor(string id, string location) : base(id, location) { }
+    public Reader(string id, string location) : base(id, location) { }
 
-    public override object GetValue() => CardDetected ? "Detectada" : "No Detectada";
+    public object GetValue() => CardDetected ? "Detectada" : "No Detectada";
 
-    public override void SimulateUpdate()
+    public void SimulateUpdate()
     {
         // Simulate random card detection (e.g., 10% chance each update)
         if (_random.NextDouble() < 0.1)
         {
             CardDetected = true;
+            
             // Optional: Add logic to automatically turn off after a while
         }
         else
@@ -80,6 +81,25 @@ public class PrinterSensor : Sensor
     public PrinterSensor(string id, string location) : base(id, location) { }
 
     public override object GetValue() => PrinterDetected ? "Detectada" : "No Detectada";
+
+    public override void SimulateUpdate()
+    {
+        // Simulate random motion detection (e.g., 10% chance each update)
+        if (_random.NextDouble() < 0.1)
+        {
+            PrinterDetected = true;
+            // Optional: Add logic to automatically turn off after a while
+        }
+        else
+        {
+            // Have a chance to turn off if already on
+            if (PrinterDetected && _random.NextDouble() < 0.3)
+            {
+                PrinterDetected = false;
+            }
+        }
+        // If not triggered, it stays in its current state unless turned off above
+    }
 
 }
 
@@ -120,6 +140,7 @@ public class Room
     public string Name { get; }
     public bool isWork { get; }
     public List<Sensor> Sensors { get; } = new List<Sensor>();
+    public List<Reader> Readers { get; } = new List<Reader>();
 
     public Room(string name, bool iswork)
     {
@@ -130,6 +151,11 @@ public class Room
     public void AddSensor(Sensor sensor)
     {
         Sensors.Add(sensor);
+    }
+
+    public void AddReader(Reader reader)
+    {
+        Readers.Add(reader);
     }
 
     public void SimulateUpdateSensors()
