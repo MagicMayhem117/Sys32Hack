@@ -2,11 +2,11 @@
 
 public class sensor
 {
-        public string location { get; set; };
-        public string id { get; set; };
-        public int capacity { get; set; };
-        public int updateSensor { get; set; };
-        public int values { get; set; };
+        public string location { get; set; }
+        public string id { get; set; }
+        public int capacity { get; set; }
+        public int updateSensor { get; set; }
+        public int values { get; set; }
         
         
         public sensor()
