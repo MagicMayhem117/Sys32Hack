@@ -1,0 +1,15 @@
+C:\Users\diego\Desktop\Sys32\Ventana\bin\Debug\net9.0-windows\Ventana.exe
+C:\Users\diego\Desktop\Sys32\Ventana\bin\Debug\net9.0-windows\Ventana.deps.json
+C:\Users\diego\Desktop\Sys32\Ventana\bin\Debug\net9.0-windows\Ventana.runtimeconfig.json
+C:\Users\diego\Desktop\Sys32\Ventana\bin\Debug\net9.0-windows\Ventana.dll
+C:\Users\diego\Desktop\Sys32\Ventana\bin\Debug\net9.0-windows\Ventana.pdb
+C:\Users\diego\Desktop\Sys32\Ventana\obj\Debug\net9.0-windows\Ventana.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\diego\Desktop\Sys32\Ventana\obj\Debug\net9.0-windows\Ventana.AssemblyInfoInputs.cache
+C:\Users\diego\Desktop\Sys32\Ventana\obj\Debug\net9.0-windows\Ventana.AssemblyInfo.cs
+C:\Users\diego\Desktop\Sys32\Ventana\obj\Debug\net9.0-windows\Ventana.csproj.CoreCompileInputs.cache
+C:\Users\diego\Desktop\Sys32\Ventana\obj\Debug\net9.0-windows\Ventana.sourcelink.json
+C:\Users\diego\Desktop\Sys32\Ventana\obj\Debug\net9.0-windows\Ventana.dll
+C:\Users\diego\Desktop\Sys32\Ventana\obj\Debug\net9.0-windows\refint\Ventana.dll
+C:\Users\diego\Desktop\Sys32\Ventana\obj\Debug\net9.0-windows\Ventana.pdb
+C:\Users\diego\Desktop\Sys32\Ventana\obj\Debug\net9.0-windows\Ventana.genruntimeconfig.cache
+C:\Users\diego\Desktop\Sys32\Ventana\obj\Debug\net9.0-windows\ref\Ventana.dll
