@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\diego\\Desktop\\Sys32\\generacionOficina\\generacionOficina.csproj": {}
+    "C:\\Users\\diego\\Desktop\\SYS32CODE\\Sys32Hack\\generacionOficina\\generacionOficina.csproj": {}
   },
   "projects": {
-    "C:\\Users\\diego\\Desktop\\Sys32\\generacionOficina\\generacionOficina.csproj": {
+    "C:\\Users\\diego\\Desktop\\SYS32CODE\\Sys32Hack\\generacionOficina\\generacionOficina.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\diego\\Desktop\\Sys32\\generacionOficina\\generacionOficina.csproj",
+        "projectUniqueName": "C:\\Users\\diego\\Desktop\\SYS32CODE\\Sys32Hack\\generacionOficina\\generacionOficina.csproj",
         "projectName": "generacionOficina",
-        "projectPath": "C:\\Users\\diego\\Desktop\\Sys32\\generacionOficina\\generacionOficina.csproj",
+        "projectPath": "C:\\Users\\diego\\Desktop\\SYS32CODE\\Sys32Hack\\generacionOficina\\generacionOficina.csproj",
         "packagesPath": "C:\\Users\\diego\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\diego\\Desktop\\Sys32\\generacionOficina\\obj\\",
+        "outputPath": "C:\\Users\\diego\\Desktop\\SYS32CODE\\Sys32Hack\\generacionOficina\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -50,6 +50,10 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "dependencies": {
+            "Google.Cloud.AIPlatform.V1": {
+              "target": "Package",
+              "version": "[3.24.0, )"
+            },
             "MongoDB.Driver": {
               "target": "Package",
               "version": "[3.3.0, )"

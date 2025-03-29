@@ -9,7 +9,7 @@
   {
     "id": 2,
     "nombre": "Luis Mart\u00EDnez",
-    "horas_trabajo_hoy": 0,
+    "horas_trabajo_hoy": 6,
     "horas_trabajo_semana": 35,
     "start_count": 0
   },
@@ -23,7 +23,7 @@
   {
     "id": 4,
     "nombre": "Diego L\u00F3pez",
-    "horas_trabajo_hoy": 0,
+    "horas_trabajo_hoy": 12,
     "horas_trabajo_semana": 38,
     "start_count": 0
   },
@@ -51,9 +51,9 @@
   {
     "id": 8,
     "nombre": "Mateo Hernandez",
-    "horas_trabajo_hoy": 0,
+    "horas_trabajo_hoy": 15,
     "horas_trabajo_semana": 37,
-    "start_count": 3
+    "start_count": 0
   },
   {
     "id": 9,
@@ -65,8 +65,8 @@
   {
     "id": 10,
     "nombre": "Javier Torres",
-    "horas_trabajo_hoy": 0,
+    "horas_trabajo_hoy": 3,
     "horas_trabajo_semana": 36,
-    "start_count": 3
+    "start_count": 0
   }
 ]
