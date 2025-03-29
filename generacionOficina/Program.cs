@@ -27,7 +27,7 @@ public class Program
 
         try
         {
-            string prompt = $"{prompt_IA}";
+            string prompt = $"En lenguaje natural, genera un reporte del estado de la oficina y sus recursos, incluyendo los trabajadores, con base en la siguiente información: '{File.ReadAllText("config.json")}', '****** ESTADO OFICINA: Corporativo Central ******\r\nHora: 2025-03-29 08:04:45\r\n======================================\r\n--- Estado Habitación: Recepción (Trabajo: False) ---  [Temperatura] ID: TEMP-REC-01 @ Recepción -> Valor: 15.4°C (calefaccion encendida)\r\n  [Movimiento] ID: MOT-REC-01 @ Recepción -> Valor: Detectado - Las luces están prendidas\r\n  [Tarjeta] ID: CARD-REC-01 @ Recepción -> Valor: Empleado Luis Martínez detectad@ fuera de zona de trabajo\r\n\r\n--- Estado Habitación: Sala de Juntas Alfa (Trabajo: True) ---  [Temperatura] ID: TEMP-SJ-01 @ Sala de Juntas Alfa -> Valor: 24.6°C (aire acondicionado encendido)\r\n  [Movimiento] ID: MOT-SJ-01 @ Sala de Juntas Alfa -> Valor: No Detectado - Las luces están apagadas\r\n  [Impresora] ID: PRN-SJ-01 @ Sala de Juntas Alfa -> Valor: En uso\r\n  [Tarjeta] ID: CARD-SJ-01 @ Sala de Juntas Alfa -> Valor: No Detectada\r\n\r\n--- Estado Habitación: Area Común (Trabajo: False) ---  [Temperatura] ID: TEMP-AC-01 @ Area Común -> Valor: 19.7°C (temperatura estable)\\r\\n  [Movimiento] ID: MOT-AC-01 @ Area Común -> Valor: Detectado - Las luces están prendidas\r\n  [Impresora] ID: PRN-AC-01 @ Area Común -> Valor: En Uso\r\n  [Tarjeta] ID: CARD-AC-01 @ Area Común -> Valor: Empleado Sofia Rodriguez detectad@ fuera de zona de trabajo\r\n\r\n--- Estado Habitación: Cubículos Beta (Trabajo: True) ---  [Movimiento] ID: MOT-CB-01 @ Cubículos Beta -> Valor: No Detectado - Las luces están apagadas\r\n  [Impresora] ID: PRN-CB-01 @ Cubículos Beta -> Valor: Libre\r\n  [Tarjeta] ID: CARD-CB-01 @ Cubículos Beta -> Valor: No Detectada\r\n\r\n======================================'";
 
             var generateContentRequest = new GenerateContentRequest
             {
@@ -211,8 +211,11 @@ public class Program
                 miOficina.SimulateUpdateAll();
                 // Console.WriteLine(miOficina.DisplayFullStatus());
                 Thread.Sleep(2000);
-                prompt_IA = $"Escribe un reporte con base en la siguiente información: {File.ReadAllText("config.json")}, {miOficina.DisplayFullStatus()}";
+                string prompt = $"Escribe un reporte con base en la siguiente información: {File.ReadAllText("config.json")}, {miOficina.DisplayFullStatus()}";
+                Console.WriteLine(miOficina.DisplayFullStatus());
                 await TextInput();
+
+
             }
         }
 
