@@ -84,11 +84,9 @@ public class Program
 
                     foreach (var roomConfig in config.Rooms ?? new List<RoomConfig>())
                     {
-                        // Crear la habitación PRIMERO para poder pasarla a los constructores de sensores/lectores
                         Room newRoom = new Room(roomConfig.Name ?? "Habitación Sin Nombre", roomConfig.IsWork);
-                        miOficina.AddRoom(newRoom); // Añadirla a la oficina
+                        miOficina.AddRoom(newRoom); 
 
-                        // Crear y añadir sensores desde la configuración
                         foreach (var sensorConfig in roomConfig.Sensors ?? new List<SensorConfig>())
                         {
                             Sensor newSensor = CreateSensorFromConfig(sensorConfig, newRoom);
@@ -146,7 +144,7 @@ public class Program
                 }
             }
 
-            if (!exit) // Solo simular y mostrar si no vamos a salir
+            if (!exit) 
             {
                 miOficina.SimulateUpdateAll();
                 miOficina.DisplayFullStatus();
