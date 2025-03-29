@@ -129,6 +129,8 @@ public class CardReader : Reader // Asegúrate que hereda de Reader
     public override string Type => "Tarjeta"; // Implementa la propiedad abstracta Type
     public bool CardDetected { get; private set; }
     private Random _random = new Random();
+    private countStart; // Equivaler countStart al start_count del empleado
+    DateTime tiempo = DateTime.Now();
 
     public CardReader(string id, Room location) : base(id, location) { }
 
@@ -141,11 +143,19 @@ public class CardReader : Reader // Asegúrate que hereda de Reader
             // Accede a isWork a través de la propiedad Location que es el Room
             if (this.Location != null && this.Location.isWork)
             {
-                
+                if(countStart == 0)
+                {
+                    // Cambiar start_count a tiempo
+                }
                 return "Empleado detectado en zona de trabajo";
             }
             else
             {
+                if (countStart != 0)
+                {
+                    // Cambiar horas_trabajo_hoy a horas_trabajo_hoy + tiempo - start_count
+                    // start_count = 0
+                }
                 return "Tarjeta detectada fuera de zona de trabajo";
             }
         }
