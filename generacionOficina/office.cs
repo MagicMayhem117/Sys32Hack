@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization; // Necesario para atributos si los usaras (no estrictamente en este enfoque DTO)
+using Newtonsoft.Json;
 
 // --- DTOs para Deserialización ---
 // Estas clases reflejan la estructura del JSON
@@ -124,11 +126,49 @@ public class TemperatureSensor : Sensor
     }
 }
 
+public class Empleado
+{
+    public int id { get; set; }
+    public string nombre { get; set; }
+    public int horas_trabajo_hoy { get; set; }
+    public int horas_trabajo_semana { get; set; }
+    public int start_count { get; set; }
+
+    public static List<Empleado> LoadEmployees(string filePath)
+    {
+        using (StreamReader r = new StreamReader(filePath))
+        {
+            string json = r.ReadToEnd();
+            List<Empleado> empleados = JsonConvert.DeserializeObject<List<Empleado>>(json);
+            return empleados;
+        }
+    }
+
+    public static int GetStartCountById(List<Empleado> empleados, int id)
+    {
+        Empleado empleado = empleados.FirstOrDefault(e => e.id == id);
+        if (empleado != null)
+        {
+            return empleado.start_count;
+        }
+        else
+        {
+            throw new Exception($"Employee with ID {id} not found.");
+        }
+    }
+}
+
 public class CardReader : Reader // Asegúrate que hereda de Reader
 {
     public override string Type => "Tarjeta"; // Implementa la propiedad abstracta Type
     public bool CardDetected { get; private set; }
     private Random _random = new Random();
+    private DateTime countStart; // Equivaler countStart al start_count del empleado
+    DateTime tiempo = DateTime.Now;
+    DateTime def = DateTime.MaxValue;
+
+    public static string filePath = "Empleados.json";
+    public List<Empleado> empleados = Empleado.LoadEmployees(filePath);
 
     public CardReader(string id, Room location) : base(id, location) { }
 
@@ -141,11 +181,19 @@ public class CardReader : Reader // Asegúrate que hereda de Reader
             // Accede a isWork a través de la propiedad Location que es el Room
             if (this.Location != null && this.Location.isWork)
             {
-                
+                if(countStart == def)
+                {
+                    // Cambiar start_count a tiempo
+                }
                 return "Empleado detectado en zona de trabajo";
             }
             else
             {
+                if (countStart != def)
+                {
+                    // Cambiar horas_trabajo_hoy a horas_trabajo_hoy + tiempo - start_count
+                    // start_count = 0
+                }
                 return "Tarjeta detectada fuera de zona de trabajo";
             }
         }
