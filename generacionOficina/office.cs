@@ -243,7 +243,7 @@ public class CardReader : Reader
                 Console.WriteLine($"DEBUG: Lector {Id} detectó tarjeta, pero no hay empleados cargados.");
             }
         }
-        else if (CardDetected && _random.NextDouble() < 0.000002) // Simulación de Fin de Detección
+        else if (CardDetected) // Simulación de Fin de Detección
         {
             int? employeeIdWhoLeft = detectedEmployeeId; // Guardar ID antes de limpiar
             string employeeNameWhoLeft = nombre;
@@ -313,20 +313,40 @@ public class PrinterSensor : Sensor
     public override string Type => "Impresora";
     public bool PrinterDetected { get; private set; }
     private Random _random = new Random();
+    private int level = 100;
 
     public PrinterSensor(string id, Room location) : base(id, location) { }
 
-    public override object GetValue() => PrinterDetected ? "En uso" : "Libre";
+    public override object GetValue()
+    {
+        if(PrinterDetected && level > 0)
+        {
+            return "En uso";
+        } else if(level <= 0)
+        {
+            return "Sin tinta";
+        } else
+        {
+            return "Libre";
+        }
+    }
 
     public override void SimulateUpdate()
     {
-        if (!PrinterDetected && _random.NextDouble() < 0.02)
+        if (!PrinterDetected && _random.NextDouble() < 0.02 && level > 0)
         {
             PrinterDetected = true;
         }
         else if (PrinterDetected && _random.NextDouble() < 0.20)
         {
             PrinterDetected = false;
+        } else if(level <0)
+        {
+            PrinterDetected = false;
+        }
+        if (PrinterDetected)
+        {
+            level -= 5;
         }
     }
 }
@@ -337,6 +357,8 @@ public class MotionSensor : Sensor
     public override string Type => "Movimiento";
     public bool MotionDetected { get; private set; }
     private Random _random = new Random();
+    public string lights = "Las luces están apagadas";
+    public bool lights_on { get; private set; }
 
     public MotionSensor(string id, Room location) : base(id, location) { }
 
@@ -347,10 +369,14 @@ public class MotionSensor : Sensor
         if (!MotionDetected && _random.NextDouble() < 0.1)
         {
             MotionDetected = true;
+            lights = "Las luces están prendidas";
+            lights_on = true;
         }
-        else if (MotionDetected && _random.NextDouble() < 0.3)
+        else if (MotionDetected && _random.NextDouble() < 0.1)
         {
             MotionDetected = false;
+            lights = "Las luces están apagadas";
+            lights_on = false;
         }
     }
 }
@@ -405,6 +431,9 @@ public class Room
             if (sensor is TemperatureSensor tempSensor)
             {
                 Console.WriteLine($"  {sensor} ({tempSensor.air()})");
+            } else if(sensor is MotionSensor motSensor)
+            {
+                Console.WriteLine($"  {sensor} - {motSensor.lights}");
             }
             else
             {
