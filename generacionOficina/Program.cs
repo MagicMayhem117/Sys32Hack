@@ -4,9 +4,69 @@ using System.IO;                  // Necesario para File
 using System.Linq;
 using System.Text.Json;           // Necesario para JsonSerializer
 using System.Threading;
+using Google.Cloud.AIPlatform.V1;
+using System.Threading.Tasks;
+
 
 public class Program
 {
+
+    public static async Task<string> TextInput(
+        string projectId = "748989473373",
+        string location = "us-central1",
+        string publisher = "google",
+        string model = "gemini-1.5-flash-001",
+        string prompt_IA = "")
+    {
+        var clientBuilder = new PredictionServiceClientBuilder
+        {
+            Endpoint = $"{location}-aiplatform.googleapis.com"
+        };
+
+        var predictionServiceClient = clientBuilder.Build();
+
+        try
+        {
+            string prompt = $"En lenguaje natural, genera un reporte del estado de la oficina y sus recursos, incluyendo los trabajadores, con base en la siguiente información: '{File.ReadAllText("config.json")}', '****** ESTADO OFICINA: Corporativo Central ******\r\nHora: 2025-03-29 08:04:45\r\n======================================\r\n--- Estado Habitación: Recepción (Trabajo: False) ---  [Temperatura] ID: TEMP-REC-01 @ Recepción -> Valor: 15.4°C (calefaccion encendida)\r\n  [Movimiento] ID: MOT-REC-01 @ Recepción -> Valor: Detectado - Las luces están prendidas\r\n  [Tarjeta] ID: CARD-REC-01 @ Recepción -> Valor: Empleado Luis Martínez detectad@ fuera de zona de trabajo\r\n\r\n--- Estado Habitación: Sala de Juntas Alfa (Trabajo: True) ---  [Temperatura] ID: TEMP-SJ-01 @ Sala de Juntas Alfa -> Valor: 24.6°C (aire acondicionado encendido)\r\n  [Movimiento] ID: MOT-SJ-01 @ Sala de Juntas Alfa -> Valor: No Detectado - Las luces están apagadas\r\n  [Impresora] ID: PRN-SJ-01 @ Sala de Juntas Alfa -> Valor: En uso\r\n  [Tarjeta] ID: CARD-SJ-01 @ Sala de Juntas Alfa -> Valor: No Detectada\r\n\r\n--- Estado Habitación: Area Común (Trabajo: False) ---  [Temperatura] ID: TEMP-AC-01 @ Area Común -> Valor: 19.7°C (temperatura estable)\\r\\n  [Movimiento] ID: MOT-AC-01 @ Area Común -> Valor: Detectado - Las luces están prendidas\r\n  [Impresora] ID: PRN-AC-01 @ Area Común -> Valor: En Uso\r\n  [Tarjeta] ID: CARD-AC-01 @ Area Común -> Valor: Empleado Sofia Rodriguez detectad@ fuera de zona de trabajo\r\n\r\n--- Estado Habitación: Cubículos Beta (Trabajo: True) ---  [Movimiento] ID: MOT-CB-01 @ Cubículos Beta -> Valor: No Detectado - Las luces están apagadas\r\n  [Impresora] ID: PRN-CB-01 @ Cubículos Beta -> Valor: Libre\r\n  [Tarjeta] ID: CARD-CB-01 @ Cubículos Beta -> Valor: No Detectada\r\n\r\n======================================'";
+
+            var generateContentRequest = new GenerateContentRequest
+            {
+                Model = $"projects/{projectId}/locations/{location}/publishers/{publisher}/models/{model}",
+                Contents =
+                {
+                    new Content
+                    {
+                        Role = "USER",
+                        Parts =
+                        {
+                            new Part { Text = prompt }
+                        }
+                    }
+                }
+            };
+
+            GenerateContentResponse response = await predictionServiceClient.GenerateContentAsync(generateContentRequest);
+
+            if (response?.Candidates?.Count > 0 &&
+                response.Candidates[0].Content?.Parts?.Count > 0)
+            {
+                string responseText = response.Candidates[0].Content.Parts[0].Text;
+                Console.WriteLine(responseText);
+                return responseText;
+            }
+            else
+            {
+                Console.WriteLine("No valid response was received.");
+                return string.Empty;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred: {ex.Message}");
+            return string.Empty;
+        }
+
+    }
     // --- Métodos Ayudantes para Crear Objetos desde Config ---
     private static Sensor CreateSensorFromConfig(SensorConfig config, Room room)
     {
@@ -57,10 +117,11 @@ public class Program
     }
 
 
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         string configFilePath = "config.json";
         Office miOficina = null;
+        
 
         try
         {
@@ -84,11 +145,9 @@ public class Program
 
                     foreach (var roomConfig in config.Rooms ?? new List<RoomConfig>())
                     {
-                        // Crear la habitación PRIMERO para poder pasarla a los constructores de sensores/lectores
                         Room newRoom = new Room(roomConfig.Name ?? "Habitación Sin Nombre", roomConfig.IsWork);
-                        miOficina.AddRoom(newRoom); // Añadirla a la oficina
+                        miOficina.AddRoom(newRoom); 
 
-                        // Crear y añadir sensores desde la configuración
                         foreach (var sensorConfig in roomConfig.Sensors ?? new List<SensorConfig>())
                         {
                             Sensor newSensor = CreateSensorFromConfig(sensorConfig, newRoom);
@@ -117,7 +176,7 @@ public class Program
         catch (JsonException jsonEx)
         {
             Console.WriteLine($"Error al procesar el archivo JSON: {jsonEx.Message}");
-            
+
         }
         catch (Exception ex) // Captura otras posibles excepciones (ej. permisos de archivo)
         {
@@ -146,11 +205,16 @@ public class Program
                 }
             }
 
-            if (!exit) // Solo simular y mostrar si no vamos a salir
+            if (!exit) 
             {
                 miOficina.SimulateUpdateAll();
-                miOficina.DisplayFullStatus();
+                // Console.WriteLine(miOficina.DisplayFullStatus());
                 Thread.Sleep(2000);
+                string prompt = $"Escribe un reporte con base en la siguiente información: {File.ReadAllText("config.json")}, {miOficina.DisplayFullStatus()}";
+                Console.WriteLine(miOficina.DisplayFullStatus());
+                await TextInput();
+
+
             }
         }
 
