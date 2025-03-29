@@ -85,6 +85,27 @@ public class CardReader : Reader
     public bool CardDetected { get; private set; }
     private Random _random = new Random();
     public CardReader(string id, Room location) : base(id, location) { }
+ 
+    public string empleado()
+    {
+        if (CardDetected)
+        {
+            if (Room.isWork)
+            {
+                DateTime start_count = new DateTime();
+                start_count = DateTime.Now;
+                return "Empleado detectado";
+            }
+            else
+            {
+                return "";
+            }
+        }
+        else
+        {
+            return "Empleado no detectado";
+        }
+    }
 
     public override object GetValue() => CardDetected ? "Detectada" : "No Detectada";
 

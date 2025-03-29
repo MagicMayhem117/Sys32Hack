@@ -17,14 +17,17 @@ public class Program
         // 3. Crear y Añadir Sensores a las Habitaciones
         recepcion.AddSensor(new TemperatureSensor("TEMP-REC-01", recepcion));
         recepcion.AddSensor(new MotionSensor("MOT-REC-01", recepcion));
+        
 
         salaJuntas.AddSensor(new TemperatureSensor("TEMP-SJ-01", salaJuntas, 22.5));
         salaJuntas.AddSensor(new MotionSensor("MOT-SJ-01", salaJuntas));
+        salaJuntas.AddSensor(new PrinterSensor("PRN-SJ-01", salaJuntas));
         // Podrías añadir un sensor de ocupación, luz, etc.
 
         areaComun.AddSensor(new TemperatureSensor("TEMP-AC-01", areaComun, 20.0));
         areaComun.AddSensor(new MotionSensor("MOT-AC-01", areaComun));
         areaComun.AddSensor(new MotionSensor("MOT-AC-02", areaComun));
+        areaComun.AddSensor(new PrinterSensor("PRN-AC-01", areaComun));
 
 
         // 4. Añadir Habitaciones a la Oficina

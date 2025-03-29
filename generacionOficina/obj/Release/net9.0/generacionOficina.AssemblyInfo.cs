@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("generacionOficina")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8567b01a5777abf656920efb7aefef69531aa7e1")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c46f5e990d1ff840eb0dcaeff1c5ca42c077d34e")]
 [assembly: System.Reflection.AssemblyProductAttribute("generacionOficina")]
 [assembly: System.Reflection.AssemblyTitleAttribute("generacionOficina")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -1,1 +1,73 @@
-
+[
+    {
+        "id": 1,
+        "nombre": "Ana García",
+        "horas_trabajo_hoy": 0,
+        "horas_trabajo_semana": 40,
+        "start_count": 0
+    },
+    {
+        "id": 2,
+        "nombre": "Luis Martínez",
+        "horas_trabajo_hoy": 0,
+        "horas_trabajo_semana": 35,
+        "start_count": 0
+    },
+    {
+        "id": 3,
+        "nombre": "Sofia Rodriguez",
+        "horas_trabajo_hoy": 0,
+        "horas_trabajo_semana": 42,
+        "start_count": 0
+  
+    },
+    {
+        "id": 4,
+        "nombre": "Diego López",
+        "horas_trabajo_hoy": 0,
+        "horas_trabajo_semana": 38,
+        "start_count": 0
+    },
+    {
+        "id": 5,
+        "nombre": "Isabela Pérez",
+        "horas_trabajo_hoy": 0,
+        "horas_trabajo_semana": 45,
+        "start_count": 0
+    },
+    {
+        "id": 6,
+        "nombre": "Carlos Sanchez",
+        "horas_trabajo_hoy": 0,
+        "horas_trabajo_semana": 39,
+        "start_count": 0
+    },
+    {
+        "id": 7,
+        "nombre": "Valeria Diaz",
+        "horas_trabajo_hoy": 0,
+        "horas_trabajo_semana": 41,
+        "start_count": 0
+    },
+    {
+        "id": 8,
+        "nombre": "Mateo Hernandez",
+        "horas_trabajo_hoy": 0,
+        "horas_trabajo_semana": 37,
+        "start_count": 0
+    },
+    {
+        "id": 9,
+        "nombre": "Camila Gomez",
+        "horas_trabajo_hoy": 0,
+        "horas_trabajo_semana": 43,
+        "start_count": 0
+    },
+    {
+        "id": 10,
+        "nombre": "Javier Torres",
+        "horas_trabajo_hoy": 0,
+        "horas_trabajo_semana": 36,
+        "start_count": 0
+    }
+]
