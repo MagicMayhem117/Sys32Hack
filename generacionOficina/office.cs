@@ -181,7 +181,7 @@ public class CardReader : Reader // Asegúrate que hereda de Reader
     DateTime def = DateTime.MaxValue;
 
     public static string filePath = "Empleados.json";
-    public static List<Empleado> empleados = Empleado.LoadEmployees(filePath);
+    public List<Empleado> empleados = Empleado.LoadEmployees(filePath);
 
     public CardReader(string id, Room location) : base(id, location) { }
 

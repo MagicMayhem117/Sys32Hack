@@ -22,3 +22,4 @@ C:\Users\diego\Desktop\Sys32\generacionOficina\bin\Debug\net9.0\SharpCompress.dl
 C:\Users\diego\Desktop\Sys32\generacionOficina\bin\Debug\net9.0\Snappier.dll
 C:\Users\diego\Desktop\Sys32\generacionOficina\bin\Debug\net9.0\ZstdSharp.dll
 C:\Users\diego\Desktop\Sys32\generacionOficina\obj\Debug\net9.0\generaci.57FF756D.Up2Date
+C:\Users\diego\Desktop\Sys32\generacionOficina\bin\Debug\net9.0\Newtonsoft.Json.dll
