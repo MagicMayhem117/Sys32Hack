@@ -61,15 +61,37 @@
                     "Type": "Movimiento"
                 },
                 {
-                    "Id": "MOT-AC-02",
-                    "Type": "Movimiento"
-                },
-                {
                     "Id": "PRN-AC-01",
                     "Type": "Impresora"
                 }
             ],
-            "Readers": []
+            "Readers": [
+                {
+                    "Id": "CARD-AC-01",
+                    "Type": "Tarjeta"
+                }
+            ]
+        },
+        {
+            "Name": "Cubículos Beta",
+            "IsWork": true,
+            "Sensors": [
+                {
+                    "Id": "MOT-CB-01",
+                    "Type": "Movimiento"
+                },
+                {
+                    "Id": "PRN-CB-01",
+                    "Type": "Impresora"
+                }
+            ],
+            "Readers": [
+                {
+                    "Id": "CARD-CB-01",
+                    "Type": "Tarjeta"
+                }
+            ]
         }
     ]
+
 }

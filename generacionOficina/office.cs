@@ -245,38 +245,6 @@ public class CardReader : Reader
         }
         else if (CardDetected) // Simulación de Fin de Detección
         {
-            int? employeeIdWhoLeft = detectedEmployeeId; // Guardar ID antes de limpiar
-            string employeeNameWhoLeft = nombre;
-            bool wasInWorkZone = countStart.HasValue; // Verificar si el contador estaba activo
-
-            Console.WriteLine($"DEBUG: Lector {Id} dejó de detectar a {employeeNameWhoLeft} (ID: {employeeIdWhoLeft?.ToString() ?? "N/A"})");
-
-            if (wasInWorkZone && employeeIdWhoLeft.HasValue) // Detener contador y guardar horas SI estaba activo
-            {
-                TimeSpan workedTime = DateTime.Now - countStart.Value; // Calcular tiempo
-                Console.WriteLine($"DEBUG: Deteniendo contador para {employeeNameWhoLeft}. Tiempo trabajado en esta sesión: {workedTime.TotalMinutes:F1} min.");
-
-                // --- TAREA PENDIENTE: Actualizar y Guardar Horas ---
-                Empleado empleadoActualizar = empleados?.FirstOrDefault(e => e.id == employeeIdWhoLeft.Value);
-                if (empleadoActualizar != null)
-                {
-                    double hoursWorked = workedTime.TotalHours; // Convertir TimeSpan a la unidad deseada (ej. horas)
-                    empleadoActualizar.horas_trabajo_hoy += hoursWorked;
-                    empleadoActualizar.horas_trabajo_semana += hoursWorked; // Asumiendo que la semana sigue activa
-                    Console.WriteLine($"INFO: Horas actualizadas para {empleadoActualizar.nombre}: Hoy={empleadoActualizar.horas_trabajo_hoy:F2}h, Semana={empleadoActualizar.horas_trabajo_semana:F2}h");
-
-                    // Opcional: Guardar inmediatamente la lista actualizada en el JSON
-                    // Empleado.SaveEmployees(filePath, empleados);
-                }
-                else
-                {
-                    Console.WriteLine($"ADVERTENCIA: No se encontró al empleado ID {employeeIdWhoLeft.Value} en la lista para guardar sus horas.");
-                }
-                // --- FIN TAREA PENDIENTE ---
-
-                countStart = null; // Resetear contador
-            }
-
             // Limpiar estado actual del lector
             CardDetected = false;
             nombre = "";
