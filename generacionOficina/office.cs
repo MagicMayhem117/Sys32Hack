@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization; // Necesario para atributos si los usaras (no estrictamente en este enfoque DTO)
 using Newtonsoft.Json;
 
@@ -132,6 +133,29 @@ public class Empleado
     public int horas_trabajo_hoy { get; set; }
     public int horas_trabajo_semana { get; set; }
     public int start_count { get; set; }
+
+    public static List<Empleado> LoadEmployees(string filePath)
+    {
+        using (StreamReader r = new StreamReader(filePath))
+        {
+            string json = r.ReadToEnd();
+            List<Empleado> empleados = JsonConvert.DeserializeObject<List<Empleado>>(json);
+            return empleados;
+        }
+    }
+
+    public static int GetStartCountById(List<Empleado> empleados, int id)
+    {
+        Empleado empleado = empleados.FirstOrDefault(e => e.id == id);
+        if (empleado != null)
+        {
+            return empleado.start_count;
+        }
+        else
+        {
+            throw new Exception($"Employee with ID {id} not found.");
+        }
+    }
 }
 
 public class CardReader : Reader // Asegúrate que hereda de Reader
@@ -142,6 +166,9 @@ public class CardReader : Reader // Asegúrate que hereda de Reader
     private DateTime countStart; // Equivaler countStart al start_count del empleado
     DateTime tiempo = DateTime.Now;
     DateTime def = DateTime.MaxValue;
+
+    public static string filePath = "generacionOficina/bin/Debug/net9.0/Empleados.json";
+    public List<Empleado> empleados = Empleado.LoadEmployees(filePath);
 
     public CardReader(string id, Room location) : base(id, location) { }
 
