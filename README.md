@@ -1,3 +1,3 @@
-Sys32Hack
-Cambio de Diego
-Cambio de chucho
+DeskSort
+
+Proyecto realizado por el equipo Sys32 para el Hackathon Troyano 2025
