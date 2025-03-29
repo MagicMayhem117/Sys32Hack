@@ -1,13 +1,52 @@
-﻿// --- Sensor Base ---
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json.Serialization; // Necesario para atributos si los usaras (no estrictamente en este enfoque DTO)
+
+// --- DTOs para Deserialización ---
+// Estas clases reflejan la estructura del JSON
+public class OfficeConfig
+{
+    public string Name { get; set; }
+    public List<RoomConfig> Rooms { get; set; }
+}
+
+public class RoomConfig
+{
+    public string Name { get; set; }
+    public bool IsWork { get; set; }
+    public List<SensorConfig> Sensors { get; set; }
+    public List<ReaderConfig> Readers { get; set; }
+}
+
+public class SensorConfig
+{
+    public string Id { get; set; }
+    public string Type { get; set; } // Para identificar qué sensor crear
+    public double? InitialTemp { get; set; } // Nullable por si no es un TempSensor
+    // Añadir aquí otras propiedades específicas si otros sensores las necesitan
+}
+
+public class ReaderConfig
+{
+    public string Id { get; set; }
+    public string Type { get; set; } // Para identificar qué lector crear
+                                     // Añadir aquí otras propiedades específicas si otros lectores las necesitan
+}
+
+
+// --- Clases Principales (Ajustes menores) ---
+
+// --- Sensor Base ---
 public abstract class Sensor
 {
     public string Id { get; }
-    public Room Location { get; } // E.g., "Sala de Juntas", "Escritorio 5"
+    public Room Location { get; } // Mantenemos la referencia al objeto Room
     public abstract string Type { get; }
-    public abstract object GetValue(); // Object allows different value types
-    public abstract void SimulateUpdate(); // Logic to change the value
+    public abstract object GetValue();
+    public abstract void SimulateUpdate();
 
-    protected Sensor(string id, Room location)
+    protected Sensor(string id, Room location) // El constructor sigue igual
     {
         Id = id;
         Location = location;
@@ -15,23 +54,30 @@ public abstract class Sensor
 
     public override string ToString()
     {
-        return $"[{Type}] ID: {Id} @ {Location} -> Valor: {GetValue()}";
+        // Usamos Location.Name ya que Location es un objeto Room
+        return $"[{Type}] ID: {Id} @ {Location?.Name ?? "N/A"} -> Valor: {GetValue()}";
     }
 }
+
+// --- Reader Base ---
 public abstract class Reader
 {
     public string Id { get; }
-    public Room Location { get; } 
-    public abstract object GetValue(); 
+    public Room Location { get; }
+    public abstract string Type { get; } // Agregamos Type aquí también para consistencia
+    public abstract object GetValue();
     public abstract void SimulateUpdate();
+
     protected Reader(string id, Room location)
     {
         Id = id;
         Location = location;
     }
+
     public override string ToString()
     {
-        return $"ID: {Id} @ {Location} -> Valor: {GetValue()}";
+        // Usamos Location.Name
+        return $"[{Type}] ID: {Id}  {Location?.Name ?? "N/A"} -> Valor: {GetValue()}";
     }
 }
 
@@ -41,64 +87,66 @@ public class TemperatureSensor : Sensor
     public override string Type => "Temperatura";
     public double CurrentTemperature { get; private set; }
     private Random _random = new Random();
-    public string airCon {  get; private set; }
+    public string airCon { get; private set; }
 
+    // Constructor ajustado para recibir initialTemp
     public TemperatureSensor(string id, Room location, double initialTemp = 21.0) : base(id, location)
     {
         CurrentTemperature = initialTemp;
-        airCon = "";
+        airCon = air(); // Establecer estado inicial del AC
     }
 
-    public override object GetValue() => $"{CurrentTemperature:F1}°C"; // Format to 1 decimal place
+    public override object GetValue() => $"{CurrentTemperature:F1}°C";
 
     public string air()
     {
         if (CurrentTemperature < 16)
         {
             airCon = "calefaccion encendida";
-            return airCon;
         }
-        else if(CurrentTemperature>23)
+        else if (CurrentTemperature > 23)
         {
             airCon = "aire acondicionado encendido";
-            return airCon;
         }
         else
         {
             airCon = "temperatura estable";
-            return airCon;
-        }        
+        }
+        return airCon;
     }
 
     public override void SimulateUpdate()
     {
-        // Simulate slight fluctuation
-        double change = (_random.NextDouble() * 2.0) - 1.0; // Change between -1.0 and +1.0
-        CurrentTemperature += change * 0.2; // Small change
-        CurrentTemperature = Math.Clamp(CurrentTemperature, 8.0, 30.0); // Keep within bounds
-        air();
+        double change = (_random.NextDouble() * 2.0) - 1.0;
+        CurrentTemperature += change * 0.2;
+        CurrentTemperature = Math.Clamp(CurrentTemperature, 8.0, 30.0);
+        air(); // Actualizar estado del AC
     }
 }
-public class CardReader : Reader
-{ 
-    public string Type => "Tarjeta";
+
+public class CardReader : Reader // Asegúrate que hereda de Reader
+{
+    public override string Type => "Tarjeta"; // Implementa la propiedad abstracta Type
     public bool CardDetected { get; private set; }
     private Random _random = new Random();
+
     public CardReader(string id, Room location) : base(id, location) { }
- 
+
+    // El método empleado tenía una dependencia estática a Room.isWork
+    // Ahora debería usar la propiedad Location.isWork del objeto Room actual
     public string empleado()
     {
         if (CardDetected)
         {
-            if (Room.isWork)
+            // Accede a isWork a través de la propiedad Location que es el Room
+            if (this.Location != null && this.Location.isWork)
             {
-                DateTime start_count = new DateTime();
-                start_count = DateTime.Now;
-                return "Empleado detectado";
+                
+                return "Empleado detectado en zona de trabajo";
             }
             else
             {
-                return "";
+                return "Tarjeta detectada fuera de zona de trabajo";
             }
         }
         else
@@ -107,62 +155,49 @@ public class CardReader : Reader
         }
     }
 
-    public override object GetValue() => CardDetected ? "Detectada" : "No Detectada";
+    public override object GetValue() => CardDetected ? $"Detectada ({empleado()})" : "No Detectada"; // Muestra estado empleado
 
     public override void SimulateUpdate()
     {
-        // Simulate random card detection (e.g., 10% chance each update)
-        if (_random.NextDouble() < 0.1)
+        // Probabilidad más baja de detectar y más alta de dejar de detectar para simular paso rápido
+        if (!CardDetected && _random.NextDouble() < 0.05) // 5% chance to detect
         {
             CardDetected = true;
-            
-            // Optional: Add logic to automatically turn off after a while
         }
-        else
+        else if (CardDetected && _random.NextDouble() < 0.8) // 80% chance to clear detection
         {
-            // Have a chance to turn off if already on
-            if (CardDetected && _random.NextDouble() < 0.3)
-            {
-                CardDetected = false;
-            }
+            CardDetected = false;
         }
-        // If not triggered, it stays in its current state unless turned off above
     }
 }
+
 
 public class PrinterSensor : Sensor
 {
     public override string Type => "Impresora";
-    public bool PrinterDetected { get; private set; }
+    public bool PrinterDetected { get; private set; } // Simula si alguien está usando la impresora
     private Random _random = new Random();
 
     public PrinterSensor(string id, Room location) : base(id, location) { }
 
-    public override object GetValue() => PrinterDetected ? "Detectada" : "No Detectada";
+    public override object GetValue() => PrinterDetected ? "En uso" : "Libre"; // Mensaje más claro
 
     public override void SimulateUpdate()
     {
-        // Simulate random motion detection (e.g., 10% chance each update)
-        if (_random.NextDouble() < 0.1)
+        // Probabilidad baja de empezar a usar, probabilidad más alta de dejar de usar
+        if (!PrinterDetected && _random.NextDouble() < 0.02) // 2% chance to start using
         {
             PrinterDetected = true;
-            // Optional: Add logic to automatically turn off after a while
         }
-        else
+        else if (PrinterDetected && _random.NextDouble() < 0.20) // 20% chance to stop using
         {
-            // Have a chance to turn off if already on
-            if (PrinterDetected && _random.NextDouble() < 0.3)
-            {
-                PrinterDetected = false;
-            }
+            PrinterDetected = false;
         }
-        // If not triggered, it stays in its current state unless turned off above
     }
-
 }
 
 
-public class MotionSensor : Sensor
+public class MotionSensor : Sensor // Sin cambios necesarios aquí
 {
     public override string Type => "Movimiento";
     public bool MotionDetected { get; private set; }
@@ -174,21 +209,14 @@ public class MotionSensor : Sensor
 
     public override void SimulateUpdate()
     {
-        // Simulate random motion detection (e.g., 10% chance each update)
-        if (_random.NextDouble() < 0.1)
+        if (!MotionDetected && _random.NextDouble() < 0.1) // 10% chance to detect
         {
             MotionDetected = true;
-            // Optional: Add logic to automatically turn off after a while
         }
-        else
+        else if (MotionDetected && _random.NextDouble() < 0.3) // 30% chance to stop detecting
         {
-            // Have a chance to turn off if already on
-            if (MotionDetected && _random.NextDouble() < 0.3)
-            {
-                MotionDetected = false;
-            }
+            MotionDetected = false;
         }
-        // If not triggered, it stays in its current state unless turned off above
     }
 }
 
@@ -198,7 +226,7 @@ public class Room
     public string Name { get; }
     public bool isWork { get; }
     public List<Sensor> Sensors { get; } = new List<Sensor>();
-    public List<CardReader> Readers { get; } = new List<CardReader>();
+    public List<Reader> Readers { get; } = new List<Reader>(); // Cambiado a List<Reader> para generalizar
 
     public Room(string name, bool iswork)
     {
@@ -208,40 +236,50 @@ public class Room
 
     public void AddSensor(Sensor sensor)
     {
-        Sensors.Add(sensor);
+        if (sensor != null) Sensors.Add(sensor);
     }
 
-    public void AddReader(CardReader Reader)
+    public void AddReader(Reader reader) // Cambiado a aceptar Reader genérico
     {
-        Readers.Add(Reader);
+        if (reader != null) Readers.Add(reader);
     }
 
-    public void SimulateUpdateSensors()
+    public void SimulateUpdateDevices() // Renombrado para incluir ambos
     {
         foreach (var sensor in Sensors)
         {
             sensor.SimulateUpdate();
         }
+        foreach (var reader in Readers)
+        {
+            reader.SimulateUpdate();
+        }
     }
 
     public void DisplayStatus()
     {
-        Console.WriteLine($"--- Estado Habitación: {Name} ---");
-        if (!Sensors.Any())
+        Console.WriteLine($"--- Estado Habitación: {Name} (Trabajo: {isWork}) ---");
+        if (!Sensors.Any() && !Readers.Any()) // Comprobar ambas listas
         {
-            Console.WriteLine(" (Sin sensores)");
+            Console.WriteLine(" (Sin dispositivos)");
             return;
         }
+        // Mostrar Sensores
         foreach (var sensor in Sensors)
         {
             if (sensor is TemperatureSensor tempSensor)
             {
-                Console.WriteLine($"  {sensor}  {tempSensor.air()}");
+                Console.WriteLine($"  {sensor} ({tempSensor.air()})"); // Mostrar estado AC junto al sensor
             }
             else
             {
                 Console.WriteLine($"  {sensor}");
             }
+        }
+        // Mostrar Lectores
+        foreach (var reader in Readers)
+        {
+            Console.WriteLine($"  {reader}"); // El ToString() del CardReader ya incluye info de empleado
         }
     }
 }
@@ -266,13 +304,14 @@ public class Office
     {
         foreach (var room in Rooms)
         {
-            room.SimulateUpdateSensors();
+            // Llamar al método actualizado que simula todos los dispositivos
+            room.SimulateUpdateDevices();
         }
     }
 
-    public void DisplayFullStatus()
+    public void DisplayFullStatus() // Sin cambios necesarios aquí, ya llama a Room.DisplayStatus
     {
-        Console.Clear(); // Clear console for fresh display
+        Console.Clear();
         Console.WriteLine($"****** ESTADO OFICINA: {Name} ******");
         Console.WriteLine($"Hora: {DateTime.Now}");
         Console.WriteLine("======================================");
@@ -284,8 +323,8 @@ public class Office
         foreach (var room in Rooms)
         {
             room.DisplayStatus();
-            Console.WriteLine(); // Add empty line for spacing
-        }//hoa
+            Console.WriteLine();
+        }
         Console.WriteLine("======================================");
         Console.WriteLine("Presiona 'Q' para salir...");
     }

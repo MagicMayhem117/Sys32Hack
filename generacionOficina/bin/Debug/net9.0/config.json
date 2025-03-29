@@ -1,0 +1,75 @@
+{
+    "Name": "Corporativo Central",
+    "Rooms": [
+        {
+            "Name": "Recepción",
+            "IsWork": false,
+            "Sensors": [
+                {
+                    "Id": "TEMP-REC-01",
+                    "Type": "Temperatura",
+                    "InitialTemp": 21.5
+                },
+                {
+                    "Id": "MOT-REC-01",
+                    "Type": "Movimiento"
+                }
+            ],
+            "Readers": [
+                {
+                    "Id": "CARD-REC-01",
+                    "Type": "Tarjeta"
+                }
+            ]
+        },
+        {
+            "Name": "Sala de Juntas Alfa",
+            "IsWork": true,
+            "Sensors": [
+                {
+                    "Id": "TEMP-SJ-01",
+                    "Type": "Temperatura",
+                    "InitialTemp": 22.8
+                },
+                {
+                    "Id": "MOT-SJ-01",
+                    "Type": "Movimiento"
+                },
+                {
+                    "Id": "PRN-SJ-01",
+                    "Type": "Impresora"
+                }
+            ],
+            "Readers": [
+                {
+                    "Id": "CARD-SJ-01",
+                    "Type": "Tarjeta"
+                }
+            ]
+        },
+        {
+            "Name": "Área Común",
+            "IsWork": false,
+            "Sensors": [
+                {
+                    "Id": "TEMP-AC-01",
+                    "Type": "Temperatura",
+                    "InitialTemp": 20.0
+                },
+                {
+                    "Id": "MOT-AC-01",
+                    "Type": "Movimiento"
+                },
+                {
+                    "Id": "MOT-AC-02",
+                    "Type": "Movimiento"
+                },
+                {
+                    "Id": "PRN-AC-01",
+                    "Type": "Impresora"
+                }
+            ],
+            "Readers": []
+        }
+    ]
+}
