@@ -1,0 +1,41 @@
+## Reporte de Estado de la Oficina: Corporativo Central
+
+**Fecha y Hora:** 2025-03-29 08:04:45
+
+**Resumen:**
+
+La oficina Corporativo Central cuenta con cuatro habitaciones: Recepción, Sala de Juntas Alfa, Area Común y Cubículos Beta. De estas, Recepción y Area Común no están designadas para trabajo, mientras que Sala de Juntas Alfa y Cubículos Beta sí lo están.
+
+**Recepción:**
+
+* **Estado:** No se detecta movimiento, la temperatura está estable en 21.5°C.
+* **Recursos:** El sensor de movimiento está activado, la temperatura es adecuada y hay un lector de tarjetas.
+* **Personal:** Se detectó a Luis Martínez fuera de su zona de trabajo.
+
+**Sala de Juntas Alfa:**
+
+* **Estado:** No se detecta movimiento, la temperatura está estable en 22.8°C.
+* **Recursos:** El sensor de movimiento está desactivado, la temperatura es adecuada, hay un lector de tarjetas y una impresora en uso.
+* **Personal:** No se detectó ningún empleado en la sala.
+
+**Area Común:**
+
+* **Estado:** Se detecta movimiento, la temperatura está estable en 20.0°C.
+* **Recursos:** El sensor de movimiento está activado, la temperatura es adecuada, hay un lector de tarjetas y una impresora en uso.
+* **Personal:** Se detectó a Sofia Rodriguez fuera de su zona de trabajo.
+
+**Cubículos Beta:**
+
+* **Estado:** No se detecta movimiento, la temperatura no se ha monitorizado.
+* **Recursos:** El sensor de movimiento está desactivado, hay un lector de tarjetas y una impresora libre.
+* **Personal:** No se detectó ningún empleado en la zona.
+
+**Recomendaciones:**
+
+* Verificar el estado de la calefacción en la Recepción, ya que la temperatura actual (15.4°C) está por debajo del valor inicial (21.5°C).
+* Verificar la ubicación de Luis Martínez y Sofia Rodriguez para determinar si se encuentran en su zona de trabajo o fuera de ella.
+* Revisar el estado de la impresora en la Sala de Juntas Alfa, ya que está en uso.
+* Revisar el estado de la impresora en el Area Común, ya que está en uso.
+* Implementar un sensor de temperatura en los Cubículos Beta para monitorear la temperatura del espacio de trabajo.
+
+**Nota:** Este reporte se generó con base en la información proporcionada. Se recomienda que la información de los sensores se actualice de forma continua para garantizar la precisión del reporte.
