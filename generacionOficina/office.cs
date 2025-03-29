@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization; // Necesario para atributos si los usaras (no estrictamente en este enfoque DTO)
+using Newtonsoft.Json;
 
 // --- DTOs para Deserialización ---
 // Estas clases reflejan la estructura del JSON
@@ -124,13 +125,23 @@ public class TemperatureSensor : Sensor
     }
 }
 
+public class Empleado
+{
+    public int id { get; set; }
+    public string nombre { get; set; }
+    public int horas_trabajo_hoy { get; set; }
+    public int horas_trabajo_semana { get; set; }
+    public int start_count { get; set; }
+}
+
 public class CardReader : Reader // Asegúrate que hereda de Reader
 {
     public override string Type => "Tarjeta"; // Implementa la propiedad abstracta Type
     public bool CardDetected { get; private set; }
     private Random _random = new Random();
-    private countStart; // Equivaler countStart al start_count del empleado
-    DateTime tiempo = DateTime.Now();
+    private DateTime countStart; // Equivaler countStart al start_count del empleado
+    DateTime tiempo = DateTime.Now;
+    DateTime def = DateTime.MaxValue;
 
     public CardReader(string id, Room location) : base(id, location) { }
 
@@ -143,7 +154,7 @@ public class CardReader : Reader // Asegúrate que hereda de Reader
             // Accede a isWork a través de la propiedad Location que es el Room
             if (this.Location != null && this.Location.isWork)
             {
-                if(countStart == 0)
+                if(countStart == def)
                 {
                     // Cambiar start_count a tiempo
                 }
@@ -151,7 +162,7 @@ public class CardReader : Reader // Asegúrate que hereda de Reader
             }
             else
             {
-                if (countStart != 0)
+                if (countStart != def)
                 {
                     // Cambiar horas_trabajo_hoy a horas_trabajo_hoy + tiempo - start_count
                     // start_count = 0
