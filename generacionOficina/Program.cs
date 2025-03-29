@@ -4,9 +4,69 @@ using System.IO;                  // Necesario para File
 using System.Linq;
 using System.Text.Json;           // Necesario para JsonSerializer
 using System.Threading;
+using Google.Cloud.AIPlatform.V1;
+using System.Threading.Tasks;
+
 
 public class Program
 {
+
+    public static async Task<string> TextInput(
+        string projectId = "748989473373",
+        string location = "us-central1",
+        string publisher = "google",
+        string model = "gemini-1.5-flash-001",
+        string prompt_IA = "")
+    {
+        var clientBuilder = new PredictionServiceClientBuilder
+        {
+            Endpoint = $"{location}-aiplatform.googleapis.com"
+        };
+
+        var predictionServiceClient = clientBuilder.Build();
+
+        try
+        {
+            string prompt = $"{prompt_IA}";
+
+            var generateContentRequest = new GenerateContentRequest
+            {
+                Model = $"projects/{projectId}/locations/{location}/publishers/{publisher}/models/{model}",
+                Contents =
+                {
+                    new Content
+                    {
+                        Role = "USER",
+                        Parts =
+                        {
+                            new Part { Text = prompt }
+                        }
+                    }
+                }
+            };
+
+            GenerateContentResponse response = await predictionServiceClient.GenerateContentAsync(generateContentRequest);
+
+            if (response?.Candidates?.Count > 0 &&
+                response.Candidates[0].Content?.Parts?.Count > 0)
+            {
+                string responseText = response.Candidates[0].Content.Parts[0].Text;
+                Console.WriteLine(responseText);
+                return responseText;
+            }
+            else
+            {
+                Console.WriteLine("No valid response was received.");
+                return string.Empty;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred: {ex.Message}");
+            return string.Empty;
+        }
+
+    }
     // --- Métodos Ayudantes para Crear Objetos desde Config ---
     private static Sensor CreateSensorFromConfig(SensorConfig config, Room room)
     {
@@ -57,7 +117,7 @@ public class Program
     }
 
 
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         string configFilePath = "config.json";
         Office miOficina = null;
@@ -115,7 +175,7 @@ public class Program
         catch (JsonException jsonEx)
         {
             Console.WriteLine($"Error al procesar el archivo JSON: {jsonEx.Message}");
-            
+
         }
         catch (Exception ex) // Captura otras posibles excepciones (ej. permisos de archivo)
         {
@@ -147,8 +207,10 @@ public class Program
             if (!exit) 
             {
                 miOficina.SimulateUpdateAll();
-                miOficina.DisplayFullStatus();
+                // Console.WriteLine(miOficina.DisplayFullStatus());
                 Thread.Sleep(2000);
+                prompt_IA = $"Escribe un reporte con base en la siguiente información: {File.ReadAllText("config.json")}, {miOficina.DisplayFullStatus()}";
+                await TextInput();
             }
         }
 

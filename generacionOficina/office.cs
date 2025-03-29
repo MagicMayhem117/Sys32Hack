@@ -399,34 +399,37 @@ public class Room
         }
     }
 
-    public void DisplayStatus()
+    public string DisplayStatus()
     {
-        Console.WriteLine($"--- Estado Habitación: {Name} (Trabajo: {isWork}) ---");
+        string statusSensores = "";
+        statusSensores += $"--- Estado Habitación: {Name} (Trabajo: {isWork}) ---";
         if (!Sensors.Any() && !Readers.Any())
         {
-            Console.WriteLine(" (Sin dispositivos)");
-            return;
+            statusSensores += " (Sin dispositivos)";
+            return statusSensores;
         }
 
         foreach (var sensor in Sensors)
         {
             if (sensor is TemperatureSensor tempSensor)
             {
-                Console.WriteLine($"  {sensor} ({tempSensor.air()})");
+                statusSensores += $"  {sensor} ({tempSensor.air()})\n";
             } else if(sensor is MotionSensor motSensor)
             {
-                Console.WriteLine($"  {sensor} - {motSensor.lights}");
+                statusSensores += $"  {sensor} - {motSensor.lights}\n";
             }
             else
             {
-                Console.WriteLine($"  {sensor}");
+                statusSensores += $"  {sensor}\n";
             }
         }
 
         foreach (var reader in Readers)
         {
-            Console.WriteLine($"  {reader}");
+            statusSensores += $"  {reader}\n";
         }
+
+        return statusSensores;
     }
 }
 
@@ -454,25 +457,24 @@ public class Office
         }
     }
 
-    public void DisplayFullStatus()
+    public string DisplayFullStatus()
     {
+        string statusFinal = "";
         // Podrías añadir Console.Clear() aquí si quieres limpiar la pantalla en cada actualización
-        Console.WriteLine($"****** ESTADO OFICINA: {Name} ******");
-        Console.WriteLine($"Hora: {DateTime.Now:yyyy-MM-dd HH:mm:ss}"); // Mostrar la hora actual puede ser útil
-        Console.WriteLine("======================================");
+        statusFinal += $"****** ESTADO OFICINA: {Name} ******\nHora: {DateTime.Now:yyyy-MM-dd HH:mm:ss}\n======================================\n";
         if (!Rooms.Any())
         {
-            Console.WriteLine(" (Sin habitaciones definidas)");
-            return;
+            statusFinal += " (Sin habitaciones definidas)";
+            return statusFinal;
         }
         foreach (var room in Rooms)
         {
-            room.DisplayStatus();
-            Console.WriteLine(); // Espacio entre habitaciones
+            statusFinal += $"{room.DisplayStatus()}\n";
         }
-        Console.WriteLine("======================================");
+        statusFinal += "======================================\n";
+
+        return statusFinal;
         // Asumiendo que tienes un bucle principal que lee la tecla Q para salir
-        Console.WriteLine("Presiona 'Q' para salir...");
     }
 
     public void SaveAllEmployeeData()
