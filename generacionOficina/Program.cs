@@ -150,6 +150,7 @@ public class Program
             {
                 miOficina.SimulateUpdateAll();
                 miOficina.DisplayFullStatus();
+                Console.WriteLine(DateTime.MaxValue);
                 Thread.Sleep(2000);
             }
         }

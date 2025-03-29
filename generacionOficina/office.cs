@@ -156,6 +156,19 @@ public class Empleado
             throw new Exception($"Employee with ID {id} not found.");
         }
     }
+
+    public static string GetNameById(List<Empleado> empleados, int id)
+    {
+        Empleado empleado = empleados.FirstOrDefault(e => e.id == id);
+        if (empleado != null)
+        {
+            return empleado.nombre;
+        }
+        else
+        {
+            throw new Exception($"Employee with ID {id} not found.");
+        }
+    }
 }
 
 public class CardReader : Reader // Asegúrate que hereda de Reader
@@ -167,10 +180,12 @@ public class CardReader : Reader // Asegúrate que hereda de Reader
     DateTime tiempo = DateTime.Now;
     DateTime def = DateTime.MaxValue;
 
-    public static string filePath = "generacionOficina/bin/Debug/net9.0/Empleados.json";
-    public List<Empleado> empleados = Empleado.LoadEmployees(filePath);
+    public static string filePath = "Empleados.json";
+    public static List<Empleado> empleados = Empleado.LoadEmployees(filePath);
 
     public CardReader(string id, Room location) : base(id, location) { }
+
+    public string nombre = "";
 
     // El método empleado tenía una dependencia estática a Room.isWork
     // Ahora debería usar la propiedad Location.isWork del objeto Room actual
@@ -185,16 +200,17 @@ public class CardReader : Reader // Asegúrate que hereda de Reader
                 {
                     // Cambiar start_count a tiempo
                 }
-                return "Empleado detectado en zona de trabajo";
+                return $"Empleado {nombre} detectad@ en zona de trabajo";
             }
             else
             {
                 if (countStart != def)
                 {
+                    nombre = Empleado.GetNameById(empleados, 1);
                     // Cambiar horas_trabajo_hoy a horas_trabajo_hoy + tiempo - start_count
                     // start_count = 0
                 }
-                return "Tarjeta detectada fuera de zona de trabajo";
+                return $"Empleado {nombre} detectad@ fuera de zona de trabajo";
             }
         }
         else
