@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO; // Necesario para StreamReader y File handling
 using System.Linq;
 using Newtonsoft.Json; // Asegúrate de tener este paquete NuGet instalado
+using System.Text.Json;
 
 // --- DTOs para Deserialización ---
 public class OfficeConfig
@@ -126,6 +127,7 @@ public class Empleado
     // Cambiado a double para mayor precisión con TimeSpan
     public double horas_trabajo_hoy { get; set; }
     public double horas_trabajo_semana { get; set; }
+    public double start_count { get; set; }
     // La propiedad start_count parece reemplazada por la lógica de DateTime en CardReader
 
     public static List<Empleado> LoadEmployees(string filePath)
@@ -145,7 +147,7 @@ public class Empleado
                 List<Empleado> empleados = JsonConvert.DeserializeObject<List<Empleado>>(json);
                 return empleados ?? new List<Empleado>(); // Asegurarse de no devolver null
             }
-            catch (JsonException ex)
+            catch (System.Text.Json.JsonException ex)
             {
                 Console.WriteLine($"ERROR: El archivo JSON de empleados '{filePath}' está mal formado. {ex.Message}");
                 return new List<Empleado>(); // Devuelve lista vacía
@@ -192,7 +194,8 @@ public class CardReader : Reader
     private Random _random = new Random();
     public string nombre = "";
     private int? detectedEmployeeId = null;
-    private DateTime? countStart = null; // Para rastrear cuándo entró a zona de trabajo
+    private double countStart = 0.0; // Para rastrear cuándo entró a zona de trabajo
+    private double horas_trabajo_hoy = 0.0;
 
     public static string filePath = "Empleados.json"; // Ruta al archivo JSON
     public List<Empleado> empleados; // Lista de empleados (se carga en constructor)
@@ -214,74 +217,53 @@ public class CardReader : Reader
 
     public override void SimulateUpdate()
     {
-        if (!CardDetected && _random.NextDouble() < 0.5) // Simulación de Detección
+        if (!CardDetected && _random.NextDouble() < 0.01) // Simulación de Detección
         {
             CardDetected = true;
             if (empleados != null && empleados.Any())
             {
                 int randomIndex = _random.Next(empleados.Count);
                 detectedEmployeeId = empleados[randomIndex].id;
+                countStart = empleados[randomIndex].start_count;
                 nombre = Empleado.GetNameById(empleados, detectedEmployeeId.Value);
                 Console.WriteLine($"DEBUG: Lector {Id} detectó al empleado: {nombre} (ID: {detectedEmployeeId.Value})");
 
                 if (this.Location != null && this.Location.isWork) // Iniciar contador SI está en zona de trabajo
                 {
-                    Console.WriteLine($"DEBUG: {nombre} entró en zona de trabajo {Location.Name}. Iniciando contador.");
-                    countStart = DateTime.Now;
+                    if (countStart == 0)
+                    {
+                        string currentCount = DateTime.Now.ToString("HH:mm");
+                        int horas = Int32.Parse(currentCount.Substring(0, 2));
+                        int minutos = Int32.Parse(currentCount.Substring(3));
+                        countStart = horas + (minutos / 60);
+                        empleados[randomIndex].start_count = countStart;
+                    }
                 }
                 else
                 {
-                    Console.WriteLine($"DEBUG: {nombre} entró en zona NO laboral {Location?.Name ?? "N/A"}.");
-                    countStart = null;
+                    string countFinal = DateTime.Now.ToString("HH:mm");
+                    int horas = Int32.Parse(countFinal.Substring(0, 2));
+                    int minutos = Int32.Parse(countFinal.Substring(3));
+                    double horaFinal = horas + (minutos / 60);
+                    horas_trabajo_hoy += (horaFinal - countStart);
+                    empleados[randomIndex].horas_trabajo_hoy += horas_trabajo_hoy;
+                    countStart = 0.0;
+                    empleados[randomIndex].start_count = 0.0;
+                    Console.WriteLine($"DEBUG: Lector {Id} detectó tarjeta, pero no hay empleados cargados.");
                 }
-            }
-            else
-            {
-                nombre = "(Lista de empleados vacía o no cargada)";
-                detectedEmployeeId = null;
-                countStart = null;
-                Console.WriteLine($"DEBUG: Lector {Id} detectó tarjeta, pero no hay empleados cargados.");
+                string jsonString = System.Text.Json.JsonSerializer.Serialize(empleados, new JsonSerializerOptions { WriteIndented = true });
+                File.WriteAllText("Empleados.json", jsonString);
             }
         }
         else if (CardDetected) // Simulación de Fin de Detección
         {
-            int? employeeIdWhoLeft = detectedEmployeeId; // Guardar ID antes de limpiar
-            string employeeNameWhoLeft = nombre;
-            bool wasInWorkZone = countStart.HasValue; // Verificar si el contador estaba activo
-
-            Console.WriteLine($"DEBUG: Lector {Id} dejó de detectar a {employeeNameWhoLeft} (ID: {employeeIdWhoLeft?.ToString() ?? "N/A"})");
-
-            if (wasInWorkZone && employeeIdWhoLeft.HasValue) // Detener contador y guardar horas SI estaba activo
-            {
-                TimeSpan workedTime = DateTime.Now - countStart.Value; // Calcular tiempo
-                Console.WriteLine($"DEBUG: Deteniendo contador para {employeeNameWhoLeft}. Tiempo trabajado en esta sesión: {workedTime.TotalMinutes:F1} min.");
-
-                // --- TAREA PENDIENTE: Actualizar y Guardar Horas ---
-                Empleado empleadoActualizar = empleados?.FirstOrDefault(e => e.id == employeeIdWhoLeft.Value);
-                if (empleadoActualizar != null)
-                {
-                    double hoursWorked = workedTime.TotalHours; // Convertir TimeSpan a la unidad deseada (ej. horas)
-                    empleadoActualizar.horas_trabajo_hoy += hoursWorked;
-                    empleadoActualizar.horas_trabajo_semana += hoursWorked; // Asumiendo que la semana sigue activa
-                    Console.WriteLine($"INFO: Horas actualizadas para {empleadoActualizar.nombre}: Hoy={empleadoActualizar.horas_trabajo_hoy:F2}h, Semana={empleadoActualizar.horas_trabajo_semana:F2}h");
-
-                    // Opcional: Guardar inmediatamente la lista actualizada en el JSON
-                    // Empleado.SaveEmployees(filePath, empleados);
-                }
-                else
-                {
-                    Console.WriteLine($"ADVERTENCIA: No se encontró al empleado ID {employeeIdWhoLeft.Value} en la lista para guardar sus horas.");
-                }
-                // --- FIN TAREA PENDIENTE ---
-
-                countStart = null; // Resetear contador
-            }
 
             // Limpiar estado actual del lector
             CardDetected = false;
             nombre = "";
             detectedEmployeeId = null;
         }
+        
     }
 
     public string empleado()
@@ -290,7 +272,7 @@ public class CardReader : Reader
         {
             if (this.Location != null && this.Location.isWork)
             {
-                string estadoTiempo = countStart.HasValue ? "(Trabajando)" : "(Entrando)"; // Si countStart tiene valor, está registrando tiempo
+                string estadoTiempo = (countStart != 0) ? "(Trabajando)" : "(Entrando)"; // Si countStart tiene valor, está registrando tiempo
                 return $"Empleado {nombre} detectad@ en zona de trabajo {estadoTiempo}";
             }
             else
