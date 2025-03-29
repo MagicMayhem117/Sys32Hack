@@ -13,3 +13,12 @@ C:\Users\diego\Desktop\Sys32\generacionOficina\obj\Debug\net9.0\refint\generacio
 C:\Users\diego\Desktop\Sys32\generacionOficina\obj\Debug\net9.0\generacionOficina.pdb
 C:\Users\diego\Desktop\Sys32\generacionOficina\obj\Debug\net9.0\generacionOficina.genruntimeconfig.cache
 C:\Users\diego\Desktop\Sys32\generacionOficina\obj\Debug\net9.0\ref\generacionOficina.dll
+C:\Users\diego\Desktop\Sys32\generacionOficina\obj\Debug\net9.0\generacionOficina.csproj.AssemblyReference.cache
+C:\Users\diego\Desktop\Sys32\generacionOficina\bin\Debug\net9.0\DnsClient.dll
+C:\Users\diego\Desktop\Sys32\generacionOficina\bin\Debug\net9.0\Microsoft.Extensions.Logging.Abstractions.dll
+C:\Users\diego\Desktop\Sys32\generacionOficina\bin\Debug\net9.0\MongoDB.Bson.dll
+C:\Users\diego\Desktop\Sys32\generacionOficina\bin\Debug\net9.0\MongoDB.Driver.dll
+C:\Users\diego\Desktop\Sys32\generacionOficina\bin\Debug\net9.0\SharpCompress.dll
+C:\Users\diego\Desktop\Sys32\generacionOficina\bin\Debug\net9.0\Snappier.dll
+C:\Users\diego\Desktop\Sys32\generacionOficina\bin\Debug\net9.0\ZstdSharp.dll
+C:\Users\diego\Desktop\Sys32\generacionOficina\obj\Debug\net9.0\generaci.57FF756D.Up2Date

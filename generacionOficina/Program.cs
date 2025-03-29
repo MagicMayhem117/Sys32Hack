@@ -10,21 +10,24 @@ public class Program
         Office miOficina = new Office("Corporativo XYZ");
 
         // 2. Crear Habitaciones
-        Room recepcion = new Room("Recepción");
-        Room salaJuntas = new Room("Sala de Juntas");
-        Room areaComun = new Room("Área Común");
+        Room recepcion = new Room("Recepción", false);
+        Room salaJuntas = new Room("Sala de Juntas", true);
+        Room areaComun = new Room("Área Común", false);
 
         // 3. Crear y Añadir Sensores a las Habitaciones
-        recepcion.AddSensor(new TemperatureSensor("TEMP-REC-01", "Recepción"));
-        recepcion.AddSensor(new MotionSensor("MOT-REC-01", "Recepción"));
+        recepcion.AddSensor(new TemperatureSensor("TEMP-REC-01", recepcion));
+        recepcion.AddSensor(new MotionSensor("MOT-REC-01", recepcion));
+        
 
-        salaJuntas.AddSensor(new TemperatureSensor("TEMP-SJ-01", "Sala de Juntas", 22.5));
-        salaJuntas.AddSensor(new MotionSensor("MOT-SJ-01", "Sala de Juntas"));
+        salaJuntas.AddSensor(new TemperatureSensor("TEMP-SJ-01", salaJuntas, 22.5));
+        salaJuntas.AddSensor(new MotionSensor("MOT-SJ-01", salaJuntas));
+        salaJuntas.AddSensor(new PrinterSensor("PRN-SJ-01", salaJuntas));
         // Podrías añadir un sensor de ocupación, luz, etc.
 
-        areaComun.AddSensor(new TemperatureSensor("TEMP-AC-01", "Área Común", 20.0));
-        areaComun.AddSensor(new MotionSensor("MOT-AC-01", "Área Común"));
-        areaComun.AddSensor(new MotionSensor("MOT-AC-02", "Área Común - Cafetería"));
+        areaComun.AddSensor(new TemperatureSensor("TEMP-AC-01", areaComun, 20.0));
+        areaComun.AddSensor(new MotionSensor("MOT-AC-01", areaComun));
+        areaComun.AddSensor(new MotionSensor("MOT-AC-02", areaComun));
+        areaComun.AddSensor(new PrinterSensor("PRN-AC-01", areaComun));
 
 
         // 4. Añadir Habitaciones a la Oficina
@@ -61,5 +64,6 @@ public class Program
         }
 
         Console.WriteLine("\nSimulación terminada.");
-    }
+    }//oa x2
+
 }
