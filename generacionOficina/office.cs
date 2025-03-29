@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO; // Necesario para StreamReader y File handling
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text.Json.Serialization; // Necesario para atributos si los usaras (no estrictamente en este enfoque DTO)
-using Newtonsoft.Json;
+using Newtonsoft.Json; // Asegúrate de tener este paquete NuGet instalado
 
 // --- DTOs para Deserialización ---
-// Estas clases reflejan la estructura del JSON
 public class OfficeConfig
 {
     public string Name { get; set; }
@@ -26,29 +24,26 @@ public class SensorConfig
     public string Id { get; set; }
     public string Type { get; set; } // Para identificar qué sensor crear
     public double? InitialTemp { get; set; } // Nullable por si no es un TempSensor
-    // Añadir aquí otras propiedades específicas si otros sensores las necesitan
 }
 
 public class ReaderConfig
 {
     public string Id { get; set; }
     public string Type { get; set; } // Para identificar qué lector crear
-                                     // Añadir aquí otras propiedades específicas si otros lectores las necesitan
 }
 
-
-// --- Clases Principales (Ajustes menores) ---
+// --- Clases Principales ---
 
 // --- Sensor Base ---
 public abstract class Sensor
 {
     public string Id { get; }
-    public Room Location { get; } // Mantenemos la referencia al objeto Room
+    public Room Location { get; }
     public abstract string Type { get; }
     public abstract object GetValue();
     public abstract void SimulateUpdate();
 
-    protected Sensor(string id, Room location) // El constructor sigue igual
+    protected Sensor(string id, Room location)
     {
         Id = id;
         Location = location;
@@ -56,7 +51,6 @@ public abstract class Sensor
 
     public override string ToString()
     {
-        // Usamos Location.Name ya que Location es un objeto Room
         return $"[{Type}] ID: {Id} @ {Location?.Name ?? "N/A"} -> Valor: {GetValue()}";
     }
 }
@@ -66,7 +60,7 @@ public abstract class Reader
 {
     public string Id { get; }
     public Room Location { get; }
-    public abstract string Type { get; } // Agregamos Type aquí también para consistencia
+    public abstract string Type { get; }
     public abstract object GetValue();
     public abstract void SimulateUpdate();
 
@@ -78,8 +72,7 @@ public abstract class Reader
 
     public override string ToString()
     {
-        // Usamos Location.Name
-        return $"[{Type}] ID: {Id}  {Location?.Name ?? "N/A"} -> Valor: {GetValue()}";
+        return $"[{Type}] ID: {Id} @ {Location?.Name ?? "N/A"} -> Valor: {GetValue()}";
     }
 }
 
@@ -91,11 +84,10 @@ public class TemperatureSensor : Sensor
     private Random _random = new Random();
     public string airCon { get; private set; }
 
-    // Constructor ajustado para recibir initialTemp
     public TemperatureSensor(string id, Room location, double initialTemp = 21.0) : base(id, location)
     {
         CurrentTemperature = initialTemp;
-        airCon = air(); // Establecer estado inicial del AC
+        airCon = air();
     }
 
     public override object GetValue() => $"{CurrentTemperature:F1}°C";
@@ -122,94 +114,187 @@ public class TemperatureSensor : Sensor
         double change = (_random.NextDouble() * 2.0) - 1.0;
         CurrentTemperature += change * 0.2;
         CurrentTemperature = Math.Clamp(CurrentTemperature, 8.0, 30.0);
-        air(); // Actualizar estado del AC
+        air();
     }
 }
 
+// --- Clase Empleado y lógica de carga ---
 public class Empleado
 {
     public int id { get; set; }
     public string nombre { get; set; }
-    public int horas_trabajo_hoy { get; set; }
-    public int horas_trabajo_semana { get; set; }
-    public int start_count { get; set; }
+    // Cambiado a double para mayor precisión con TimeSpan
+    public double horas_trabajo_hoy { get; set; }
+    public double horas_trabajo_semana { get; set; }
+    // La propiedad start_count parece reemplazada por la lógica de DateTime en CardReader
 
     public static List<Empleado> LoadEmployees(string filePath)
     {
+        // Comprobar si el archivo existe antes de intentar leerlo
+        if (!File.Exists(filePath))
+        {
+            Console.WriteLine($"ADVERTENCIA: El archivo de empleados '{filePath}' no se encontró. Se devolverá una lista vacía.");
+            return new List<Empleado>(); // Devuelve lista vacía para evitar error
+        }
         using (StreamReader r = new StreamReader(filePath))
         {
             string json = r.ReadToEnd();
-            List<Empleado> empleados = JsonConvert.DeserializeObject<List<Empleado>>(json);
-            return empleados;
-        }
-    }
-
-    public static int GetStartCountById(List<Empleado> empleados, int id)
-    {
-        Empleado empleado = empleados.FirstOrDefault(e => e.id == id);
-        if (empleado != null)
-        {
-            return empleado.start_count;
-        }
-        else
-        {
-            throw new Exception($"Employee with ID {id} not found.");
+            // Añadir manejo de errores por si el JSON está mal formado
+            try
+            {
+                List<Empleado> empleados = JsonConvert.DeserializeObject<List<Empleado>>(json);
+                return empleados ?? new List<Empleado>(); // Asegurarse de no devolver null
+            }
+            catch (JsonException ex)
+            {
+                Console.WriteLine($"ERROR: El archivo JSON de empleados '{filePath}' está mal formado. {ex.Message}");
+                return new List<Empleado>(); // Devuelve lista vacía
+            }
         }
     }
 
     public static string GetNameById(List<Empleado> empleados, int id)
     {
-        Empleado empleado = empleados.FirstOrDefault(e => e.id == id);
+        Empleado empleado = empleados?.FirstOrDefault(e => e.id == id);
         if (empleado != null)
         {
             return empleado.nombre;
         }
         else
         {
-            throw new Exception($"Employee with ID {id} not found.");
+            // Es mejor no lanzar una excepción aquí si puede pasar que un ID no exista temporalmente
+            Console.WriteLine($"ADVERTENCIA: Empleado con ID {id} no encontrado en la lista cargada.");
+            return $"ID {id} Desconocido"; // O devolver un valor indicativo
+        }
+    }
+
+    // --- Método para guardar empleados (Ejemplo) ---
+    public static void SaveEmployees(string filePath, List<Empleado> empleados)
+    {
+        try
+        {
+            string json = JsonConvert.SerializeObject(empleados, Formatting.Indented); // Indented para legibilidad
+            File.WriteAllText(filePath, json);
+            Console.WriteLine($"INFO: Datos de empleados guardados en {filePath}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"ERROR: No se pudo guardar el archivo de empleados '{filePath}'. {ex.Message}");
         }
     }
 }
 
-public class CardReader : Reader // Asegúrate que hereda de Reader
+// --- Card Reader Corregido ---
+public class CardReader : Reader
 {
-    public override string Type => "Tarjeta"; // Implementa la propiedad abstracta Type
+    public override string Type => "Tarjeta";
     public bool CardDetected { get; private set; }
     private Random _random = new Random();
-    private DateTime countStart; // Equivaler countStart al start_count del empleado
-    DateTime tiempo = DateTime.Now;
-    DateTime def = DateTime.MaxValue;
-
-    public static string filePath = "Empleados.json";
-    public List<Empleado> empleados = Empleado.LoadEmployees(filePath);
-
-    public CardReader(string id, Room location) : base(id, location) { }
-
     public string nombre = "";
+    private int? detectedEmployeeId = null;
+    private DateTime? countStart = null; // Para rastrear cuándo entró a zona de trabajo
 
-    // El método empleado tenía una dependencia estática a Room.isWork
-    // Ahora debería usar la propiedad Location.isWork del objeto Room actual
+    public static string filePath = "Empleados.json"; // Ruta al archivo JSON
+    public List<Empleado> empleados; // Lista de empleados (se carga en constructor)
+
+    public CardReader(string id, Room location) : base(id, location)
+    {
+        // Cargar empleados de forma segura al crear el lector
+        try
+        {
+            empleados = Empleado.LoadEmployees(filePath);
+            Console.WriteLine($"INFO: Cargados {empleados.Count} empleados para lector {id}.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"FATAL: Lector {id}: No se pudo cargar {filePath}. Funcionalidad de empleados limitada. Error: {ex.Message}");
+            empleados = new List<Empleado>(); // Inicializar como lista vacía para evitar NullReferenceExceptions
+        }
+    }
+
+    public override void SimulateUpdate()
+    {
+        if (!CardDetected && _random.NextDouble() < 0.5) // Simulación de Detección
+        {
+            CardDetected = true;
+            if (empleados != null && empleados.Any())
+            {
+                int randomIndex = _random.Next(empleados.Count);
+                detectedEmployeeId = empleados[randomIndex].id;
+                nombre = Empleado.GetNameById(empleados, detectedEmployeeId.Value);
+                Console.WriteLine($"DEBUG: Lector {Id} detectó al empleado: {nombre} (ID: {detectedEmployeeId.Value})");
+
+                if (this.Location != null && this.Location.isWork) // Iniciar contador SI está en zona de trabajo
+                {
+                    Console.WriteLine($"DEBUG: {nombre} entró en zona de trabajo {Location.Name}. Iniciando contador.");
+                    countStart = DateTime.Now;
+                }
+                else
+                {
+                    Console.WriteLine($"DEBUG: {nombre} entró en zona NO laboral {Location?.Name ?? "N/A"}.");
+                    countStart = null;
+                }
+            }
+            else
+            {
+                nombre = "(Lista de empleados vacía o no cargada)";
+                detectedEmployeeId = null;
+                countStart = null;
+                Console.WriteLine($"DEBUG: Lector {Id} detectó tarjeta, pero no hay empleados cargados.");
+            }
+        }
+        else if (CardDetected && _random.NextDouble() < 0.000002) // Simulación de Fin de Detección
+        {
+            int? employeeIdWhoLeft = detectedEmployeeId; // Guardar ID antes de limpiar
+            string employeeNameWhoLeft = nombre;
+            bool wasInWorkZone = countStart.HasValue; // Verificar si el contador estaba activo
+
+            Console.WriteLine($"DEBUG: Lector {Id} dejó de detectar a {employeeNameWhoLeft} (ID: {employeeIdWhoLeft?.ToString() ?? "N/A"})");
+
+            if (wasInWorkZone && employeeIdWhoLeft.HasValue) // Detener contador y guardar horas SI estaba activo
+            {
+                TimeSpan workedTime = DateTime.Now - countStart.Value; // Calcular tiempo
+                Console.WriteLine($"DEBUG: Deteniendo contador para {employeeNameWhoLeft}. Tiempo trabajado en esta sesión: {workedTime.TotalMinutes:F1} min.");
+
+                // --- TAREA PENDIENTE: Actualizar y Guardar Horas ---
+                Empleado empleadoActualizar = empleados?.FirstOrDefault(e => e.id == employeeIdWhoLeft.Value);
+                if (empleadoActualizar != null)
+                {
+                    double hoursWorked = workedTime.TotalHours; // Convertir TimeSpan a la unidad deseada (ej. horas)
+                    empleadoActualizar.horas_trabajo_hoy += hoursWorked;
+                    empleadoActualizar.horas_trabajo_semana += hoursWorked; // Asumiendo que la semana sigue activa
+                    Console.WriteLine($"INFO: Horas actualizadas para {empleadoActualizar.nombre}: Hoy={empleadoActualizar.horas_trabajo_hoy:F2}h, Semana={empleadoActualizar.horas_trabajo_semana:F2}h");
+
+                    // Opcional: Guardar inmediatamente la lista actualizada en el JSON
+                    // Empleado.SaveEmployees(filePath, empleados);
+                }
+                else
+                {
+                    Console.WriteLine($"ADVERTENCIA: No se encontró al empleado ID {employeeIdWhoLeft.Value} en la lista para guardar sus horas.");
+                }
+                // --- FIN TAREA PENDIENTE ---
+
+                countStart = null; // Resetear contador
+            }
+
+            // Limpiar estado actual del lector
+            CardDetected = false;
+            nombre = "";
+            detectedEmployeeId = null;
+        }
+    }
+
     public string empleado()
     {
         if (CardDetected)
         {
-            // Accede a isWork a través de la propiedad Location que es el Room
             if (this.Location != null && this.Location.isWork)
             {
-                if(countStart == def)
-                {
-                    // Cambiar start_count a tiempo
-                }
-                return $"Empleado {nombre} detectad@ en zona de trabajo";
+                string estadoTiempo = countStart.HasValue ? "(Trabajando)" : "(Entrando)"; // Si countStart tiene valor, está registrando tiempo
+                return $"Empleado {nombre} detectad@ en zona de trabajo {estadoTiempo}";
             }
             else
             {
-                if (countStart != def)
-                {
-                    nombre = Empleado.GetNameById(empleados, 1);
-                    // Cambiar horas_trabajo_hoy a horas_trabajo_hoy + tiempo - start_count
-                    // start_count = 0
-                }
                 return $"Empleado {nombre} detectad@ fuera de zona de trabajo";
             }
         }
@@ -219,41 +304,27 @@ public class CardReader : Reader // Asegúrate que hereda de Reader
         }
     }
 
-    public override object GetValue() => CardDetected ? $"Detectada ({empleado()})" : "No Detectada"; // Muestra estado empleado
-
-    public override void SimulateUpdate()
-    {
-        // Probabilidad más baja de detectar y más alta de dejar de detectar para simular paso rápido
-        if (!CardDetected && _random.NextDouble() < 0.05) // 5% chance to detect
-        {
-            CardDetected = true;
-        }
-        else if (CardDetected && _random.NextDouble() < 0.8) // 80% chance to clear detection
-        {
-            CardDetected = false;
-        }
-    }
+    public override object GetValue() => CardDetected ? $"Detectada ({empleado()})" : "No Detectada";
 }
 
 
 public class PrinterSensor : Sensor
 {
     public override string Type => "Impresora";
-    public bool PrinterDetected { get; private set; } // Simula si alguien está usando la impresora
+    public bool PrinterDetected { get; private set; }
     private Random _random = new Random();
 
     public PrinterSensor(string id, Room location) : base(id, location) { }
 
-    public override object GetValue() => PrinterDetected ? "En uso" : "Libre"; // Mensaje más claro
+    public override object GetValue() => PrinterDetected ? "En uso" : "Libre";
 
     public override void SimulateUpdate()
     {
-        // Probabilidad baja de empezar a usar, probabilidad más alta de dejar de usar
-        if (!PrinterDetected && _random.NextDouble() < 0.02) // 2% chance to start using
+        if (!PrinterDetected && _random.NextDouble() < 0.02)
         {
             PrinterDetected = true;
         }
-        else if (PrinterDetected && _random.NextDouble() < 0.20) // 20% chance to stop using
+        else if (PrinterDetected && _random.NextDouble() < 0.20)
         {
             PrinterDetected = false;
         }
@@ -261,7 +332,7 @@ public class PrinterSensor : Sensor
 }
 
 
-public class MotionSensor : Sensor // Sin cambios necesarios aquí
+public class MotionSensor : Sensor
 {
     public override string Type => "Movimiento";
     public bool MotionDetected { get; private set; }
@@ -273,11 +344,11 @@ public class MotionSensor : Sensor // Sin cambios necesarios aquí
 
     public override void SimulateUpdate()
     {
-        if (!MotionDetected && _random.NextDouble() < 0.1) // 10% chance to detect
+        if (!MotionDetected && _random.NextDouble() < 0.1)
         {
             MotionDetected = true;
         }
-        else if (MotionDetected && _random.NextDouble() < 0.3) // 30% chance to stop detecting
+        else if (MotionDetected && _random.NextDouble() < 0.3)
         {
             MotionDetected = false;
         }
@@ -290,7 +361,7 @@ public class Room
     public string Name { get; }
     public bool isWork { get; }
     public List<Sensor> Sensors { get; } = new List<Sensor>();
-    public List<Reader> Readers { get; } = new List<Reader>(); // Cambiado a List<Reader> para generalizar
+    public List<Reader> Readers { get; } = new List<Reader>();
 
     public Room(string name, bool iswork)
     {
@@ -303,12 +374,12 @@ public class Room
         if (sensor != null) Sensors.Add(sensor);
     }
 
-    public void AddReader(Reader reader) // Cambiado a aceptar Reader genérico
+    public void AddReader(Reader reader)
     {
         if (reader != null) Readers.Add(reader);
     }
 
-    public void SimulateUpdateDevices() // Renombrado para incluir ambos
+    public void SimulateUpdateDevices()
     {
         foreach (var sensor in Sensors)
         {
@@ -323,27 +394,27 @@ public class Room
     public void DisplayStatus()
     {
         Console.WriteLine($"--- Estado Habitación: {Name} (Trabajo: {isWork}) ---");
-        if (!Sensors.Any() && !Readers.Any()) // Comprobar ambas listas
+        if (!Sensors.Any() && !Readers.Any())
         {
             Console.WriteLine(" (Sin dispositivos)");
             return;
         }
-        // Mostrar Sensores
+
         foreach (var sensor in Sensors)
         {
             if (sensor is TemperatureSensor tempSensor)
             {
-                Console.WriteLine($"  {sensor} ({tempSensor.air()})"); // Mostrar estado AC junto al sensor
+                Console.WriteLine($"  {sensor} ({tempSensor.air()})");
             }
             else
             {
                 Console.WriteLine($"  {sensor}");
             }
         }
-        // Mostrar Lectores
+
         foreach (var reader in Readers)
         {
-            Console.WriteLine($"  {reader}"); // El ToString() del CardReader ya incluye info de empleado
+            Console.WriteLine($"  {reader}");
         }
     }
 }
@@ -368,16 +439,15 @@ public class Office
     {
         foreach (var room in Rooms)
         {
-            // Llamar al método actualizado que simula todos los dispositivos
             room.SimulateUpdateDevices();
         }
     }
 
-    public void DisplayFullStatus() // Sin cambios necesarios aquí, ya llama a Room.DisplayStatus
+    public void DisplayFullStatus()
     {
-        Console.Clear();
+        // Podrías añadir Console.Clear() aquí si quieres limpiar la pantalla en cada actualización
         Console.WriteLine($"****** ESTADO OFICINA: {Name} ******");
-        Console.WriteLine($"Hora: {DateTime.Now}");
+        Console.WriteLine($"Hora: {DateTime.Now:yyyy-MM-dd HH:mm:ss}"); // Mostrar la hora actual puede ser útil
         Console.WriteLine("======================================");
         if (!Rooms.Any())
         {
@@ -387,9 +457,30 @@ public class Office
         foreach (var room in Rooms)
         {
             room.DisplayStatus();
-            Console.WriteLine();
+            Console.WriteLine(); // Espacio entre habitaciones
         }
         Console.WriteLine("======================================");
+        // Asumiendo que tienes un bucle principal que lee la tecla Q para salir
         Console.WriteLine("Presiona 'Q' para salir...");
+    }
+
+    public void SaveAllEmployeeData()
+    {
+        // Necesitamos acceder a la lista de empleados de algún lector.
+        // Asumimos que todos los CardReader comparten/acceden a la misma fuente de datos actualizada.
+        // Podríamos tomar la lista del primer CardReader encontrado.
+        CardReader firstReader = Rooms.SelectMany(r => r.Readers)
+                                       .OfType<CardReader>()
+                                       .FirstOrDefault();
+
+        if (firstReader != null && firstReader.empleados != null)
+        {
+            Console.WriteLine("INFO: Guardando estado final de los empleados...");
+            Empleado.SaveEmployees(CardReader.filePath, firstReader.empleados);
+        }
+        else
+        {
+            Console.WriteLine("ADVERTENCIA: No se encontraron CardReaders o lista de empleados para guardar.");
+        }
     }
 }
