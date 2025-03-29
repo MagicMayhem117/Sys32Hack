@@ -117,7 +117,7 @@ public class Program
         catch (JsonException jsonEx)
         {
             Console.WriteLine($"Error al procesar el archivo JSON: {jsonEx.Message}");
-            // Podrías añadir más detalles como jsonEx.LineNumber si lo necesitas
+            
         }
         catch (Exception ex) // Captura otras posibles excepciones (ej. permisos de archivo)
         {
